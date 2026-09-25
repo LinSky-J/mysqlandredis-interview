@@ -1,0 +1,69 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+spring:
+  application:
+    name: mysqlandredis-interview
+
+  # ==============================
+  # 数据源配置 (MySQL + HikariCP)
+  # ==============================
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/interview_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    hikari:
+      pool-name: MysqlRedisHikariPool
+      minimum-idle: 5
+      maximum-pool-size: 15
+      auto-commit: true
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+
+  # ==============================
+  # Redis 缓存配置 (Lettuce 连接池)
+  # ==============================
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    password: 
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 16
+        max-wait: 3000ms
+        max-idle: 8
+        min-idle: 2
+      shutdown-timeout: 100ms
+
+# ==============================
+# MyBatis 框架配置
+# ==============================
+mybatis:
+  # 映射器 XML 文件路径
+  mapper-locations: classpath:mappers/**/*.xml
+  # 实体类包路径
+  type-aliases-package: com.jinlin.mysqlandredis.entity
+  configuration:
+    # 开启下划线转驼峰
+    map-underscore-to-camel-case: true
+    # 控制台打印 SQL 语句日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 二级缓存开关
+    cache-enabled: true
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.jinlin.mysqlandredis: DEBUG
