@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * MySQL 与 Redis 面试演练工程启动类
  */
 @SpringBootApplication
-@MapperScan("com.jinlin.mysqlandredis.mapper")
+@MapperScan({"com.jinlin.mysqlandredis.mapper", "com.jinlin.mysqlandredis.mybatis.mapper"})
 public class MysqlandredisApplication {
 
     public static void main(String[] args) {
