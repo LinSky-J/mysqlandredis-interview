@@ -64,7 +64,7 @@ public class RedisDs04_ZSetUnderlyingImplementationDemo {
         for (int i = 0; i < 5; i++) {
             longMember.append("1234567890");
         }
-        // Redis 原生指令: ZADD demo:zset:encoding_transition 999.0 <longMember>
+        // Redis 原生指令: ZADD demo:zset:encoding_transition 999.0 "LONG_STRING_PAYLOAD_EXCEEDING_SIXTY_FOUR_BYTES_THRESHOLD_12345678901234567890"
         redisTemplate.opsForZSet().add(zsetKey, longMember.toString(), 999.0);
 
         // Redis 原生指令: OBJECT ENCODING demo:zset:encoding_transition

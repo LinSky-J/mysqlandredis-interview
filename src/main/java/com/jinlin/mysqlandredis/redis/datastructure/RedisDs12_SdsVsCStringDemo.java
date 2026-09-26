@@ -51,7 +51,7 @@ public class RedisDs12_SdsVsCStringDemo {
         String sdsKey = "demo:sds:binary_safe";
         // 构造一个内部包含控制字符与 \0 的复杂二进制字符串
         String rawBinaryData = "Hello\u0000Redis\u0000World\uffffEnd";
-        // Redis 原生指令: SET demo:sds:binary_safe "Hello\0Redis\0World\uffffEnd"
+        // Redis 原生指令: SET demo:sds:binary_safe "Hello\0Redis\0World"
         redisTemplate.opsForValue().set(sdsKey, rawBinaryData);
 
         // Redis 原生指令: GET demo:sds:binary_safe

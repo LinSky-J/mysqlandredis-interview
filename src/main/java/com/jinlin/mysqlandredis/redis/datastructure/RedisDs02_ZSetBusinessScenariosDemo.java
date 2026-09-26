@@ -89,20 +89,20 @@ public class RedisDs02_ZSetBusinessScenariosDemo {
 
         long now = System.currentTimeMillis();
         // 模拟放入三个订单，到期时间戳分别为：过去(已到期)、现在、未来(未到期)
-        // Redis 原生指令: ZADD demo:zset:delay_queue <now-5000> ORDER_EXPIRED_001
+        // Redis 原生指令 (示例时间戳 1700000000000): ZADD demo:zset:delay_queue 1700000000000 ORDER_EXPIRED_001
         redisTemplate.opsForZSet().add(delayQueueKey, "ORDER_EXPIRED_001", (double) (now - 5000));
-        // Redis 原生指令: ZADD demo:zset:delay_queue <now-1000> ORDER_EXPIRED_002
+        // Redis 原生指令 (示例时间戳 1700000004000): ZADD demo:zset:delay_queue 1700000004000 ORDER_EXPIRED_002
         redisTemplate.opsForZSet().add(delayQueueKey, "ORDER_EXPIRED_002", (double) (now - 1000));
-        // Redis 原生指令: ZADD demo:zset:delay_queue <now+60000> ORDER_FUTURE_003
+        // Redis 原生指令 (示例时间戳 1700000065000): ZADD demo:zset:delay_queue 1700000065000 ORDER_FUTURE_003
         redisTemplate.opsForZSet().add(delayQueueKey, "ORDER_FUTURE_003", (double) (now + 60000));
 
         // 捞取已到期的订单 (score <= now)
-        // Redis 原生指令: ZRANGEBYSCORE demo:zset:delay_queue 0 <now>
+        // Redis 原生指令 (查询分值范围 0 至当前时间戳): ZRANGEBYSCORE demo:zset:delay_queue 0 1700000005000
         Set<String> expiredOrders = redisTemplate.opsForZSet().rangeByScore(delayQueueKey, 0.0, (double) now);
         System.out.println("  -> 当前时间截点捞出已超时的订单: " + expiredOrders);
         if (expiredOrders != null) {
             for (String orderId : expiredOrders) {
-                // Redis 原生指令: ZREM demo:zset:delay_queue <orderId>
+                // Redis 原生指令: ZREM demo:zset:delay_queue ORDER_EXPIRED_001
                 redisTemplate.opsForZSet().remove(delayQueueKey, orderId);
                 System.out.println("     [任务执行] 成功原子抢占并消费超时订单: " + orderId + " -> 触发取消订单释放库存逻辑");
             }
