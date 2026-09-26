@@ -41,14 +41,19 @@ public class DbConnectionHelper {
     }
 
     /**
-     * 执行一段批量建表或更新的 SQL 脚本
+     * 执行一段批量建表或更新的 SQL 脚本 (自动支持按分号拆分多条语句执行)
      */
     public static void executeSqlScript(String... sqlStatements) {
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
-            for (String sql : sqlStatements) {
-                if (sql != null && !sql.trim().isEmpty()) {
-                    stmt.execute(sql.trim());
+            for (String block : sqlStatements) {
+                if (block != null && !block.trim().isEmpty()) {
+                    for (String sql : block.split(";")) {
+                        String trimmed = sql.trim();
+                        if (!trimmed.isEmpty()) {
+                            stmt.execute(trimmed);
+                        }
+                    }
                 }
             }
         } catch (SQLException e) {
