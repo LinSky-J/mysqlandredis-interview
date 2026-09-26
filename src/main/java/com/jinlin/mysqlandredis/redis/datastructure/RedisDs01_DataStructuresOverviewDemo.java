@@ -1,7 +1,7 @@
 package com.jinlin.mysqlandredis.redis.datastructure;
 
 import com.jinlin.mysqlandredis.redis.util.RedisConnectionHelper;
-import io.lettuce.core.api.sync.RedisCommands;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * Redis 数据结构篇 01: Redis 底层数据结构与对象系统全景剖析
@@ -34,37 +34,37 @@ public class RedisDs01_DataStructuresOverviewDemo {
         System.out.println(">> [RedisDs01] Redis 底层数据结构全景与对象系统 (redisObject) 编码核验");
         System.out.println("================================================================================");
 
-        RedisCommands<String, String> commands = RedisConnectionHelper.getCommands();
+        StringRedisTemplate redisTemplate = RedisConnectionHelper.getStringRedisTemplate();
 
         // 1. 实机写入不同类型的 Key 并探测底层 encoding
-        System.out.println("[步骤 1] 在本地 Redis 中写入不同类型的键，使用 OBJECT ENCODING 查看底层数据结构：");
+        System.out.println("[步骤 1] 在本地 Redis 中写入不同类型的键，使用 RedisTemplate 与 OBJECT ENCODING 查看底层数据结构：");
 
-        // 整数字符串 -> int
-        commands.set("demo:ds:num", "10086");
-        String numEnc = commands.objectEncoding("demo:ds:num");
+        // 整数字符串 -> int (opsForValue)
+        redisTemplate.opsForValue().set("demo:ds:num", "10086");
+        String numEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:num");
         System.out.println("  -> [String 短整数] Key: demo:ds:num -> 底层编码: " + numEnc + " (内存优化型直接存储在 ptr 指针中)");
 
-        // 短字符串 -> embstr (SDS)
-        commands.set("demo:ds:str", "hello_redis");
-        String strEnc = commands.objectEncoding("demo:ds:str");
+        // 短字符串 -> embstr (SDS) (opsForValue)
+        redisTemplate.opsForValue().set("demo:ds:str", "hello_redis");
+        String strEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:str");
         System.out.println("  -> [String 短文本] Key: demo:ds:str -> 底层编码: " + strEnc + " (redisObject 与 SDS 内存连续分配)");
 
-        // 纯整数集合 -> intset
-        commands.del("demo:ds:set");
-        commands.sadd("demo:ds:set", "10", "20", "30");
-        String setEnc = commands.objectEncoding("demo:ds:set");
+        // 纯整数集合 -> intset (opsForSet)
+        redisTemplate.delete("demo:ds:set");
+        redisTemplate.opsForSet().add("demo:ds:set", "10", "20", "30");
+        String setEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:set");
         System.out.println("  -> [Set 整数集合] Key: demo:ds:set -> 底层编码: " + setEnc + " (小整数紧凑数组，二分查找)");
 
-        // 小数据量哈希 -> ziplist 或 listpack
-        commands.del("demo:ds:hash");
-        commands.hset("demo:ds:hash", "name", "antigravity");
-        String hashEnc = commands.objectEncoding("demo:ds:hash");
+        // 小数据量哈希 -> ziplist 或 listpack (opsForHash)
+        redisTemplate.delete("demo:ds:hash");
+        redisTemplate.opsForHash().put("demo:ds:hash", "name", "antigravity");
+        String hashEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:hash");
         System.out.println("  -> [Hash 小数据量] Key: demo:ds:hash -> 底层编码: " + hashEnc + " (连续紧凑内存块)");
 
-        // 小数据量有序集合 -> ziplist 或 listpack
-        commands.del("demo:ds:zset");
-        commands.zadd("demo:ds:zset", 99.5, "Alice");
-        String zsetEnc = commands.objectEncoding("demo:ds:zset");
+        // 小数据量有序集合 -> ziplist 或 listpack (opsForZSet)
+        redisTemplate.delete("demo:ds:zset");
+        redisTemplate.opsForZSet().add("demo:ds:zset", "Alice", 99.5);
+        String zsetEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:zset");
         System.out.println("  -> [ZSet 小数据量] Key: demo:ds:zset -> 底层编码: " + zsetEnc + " (连续内存存储 member 与 score)");
 
         // 2. 知识结构对比表格

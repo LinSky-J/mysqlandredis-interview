@@ -1,7 +1,7 @@
 package com.jinlin.mysqlandredis.redis.datastructure;
 
 import com.jinlin.mysqlandredis.redis.util.RedisConnectionHelper;
-import io.lettuce.core.api.sync.RedisCommands;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * Redis 数据结构篇 04: ZSet (有序集合) 双底层实现机制 (ziplist/listpack 与 dict+skiplist)
@@ -39,18 +39,18 @@ public class RedisDs04_ZSetUnderlyingImplementationDemo {
         System.out.println(">> [RedisDs04] ZSet 双底层实现机制 (ziplist/listpack 与 skiplist+dict) 阈值跃迁实测");
         System.out.println("================================================================================");
 
-        RedisCommands<String, String> commands = RedisConnectionHelper.getCommands();
+        StringRedisTemplate redisTemplate = RedisConnectionHelper.getStringRedisTemplate();
 
         String zsetKey = "demo:zset:encoding_transition";
-        commands.del(zsetKey);
+        redisTemplate.delete(zsetKey);
 
         // 1. 插入少量短数据，观察小数据量编码 (ziplist / listpack)
         System.out.println("[步骤 1] 写入 3 个短文本元素，检查初始底层编码：");
-        commands.zadd(zsetKey, 10.0, "item_A");
-        commands.zadd(zsetKey, 20.0, "item_B");
-        commands.zadd(zsetKey, 30.0, "item_C");
+        redisTemplate.opsForZSet().add(zsetKey, "item_A", 10.0);
+        redisTemplate.opsForZSet().add(zsetKey, "item_B", 20.0);
+        redisTemplate.opsForZSet().add(zsetKey, "item_C", 30.0);
 
-        String initialEncoding = commands.objectEncoding(zsetKey);
+        String initialEncoding = RedisConnectionHelper.getObjectEncoding(zsetKey);
         System.out.println("  -> 当前元素数量: 3, 底层编码为: " + initialEncoding + " (紧凑连续内存存储)");
 
         // 2. 写入一个超长字符串 (超过 64 字节的阈值)，触发编码跃迁为 skiplist
@@ -59,9 +59,9 @@ public class RedisDs04_ZSetUnderlyingImplementationDemo {
         for (int i = 0; i < 5; i++) {
             longMember.append("1234567890");
         }
-        commands.zadd(zsetKey, 999.0, longMember.toString());
+        redisTemplate.opsForZSet().add(zsetKey, longMember.toString(), 999.0);
 
-        String upgradedEncoding = commands.objectEncoding(zsetKey);
+        String upgradedEncoding = RedisConnectionHelper.getObjectEncoding(zsetKey);
         System.out.println("  -> 插入超长 member 后，底层编码跃迁为: " + upgradedEncoding + " (跳表 skiplist + 字典 dict 复合结构)");
 
         // 3. 架构对比小结

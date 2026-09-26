@@ -1,8 +1,9 @@
 package com.jinlin.mysqlandredis.redis.datastructure;
 
 import com.jinlin.mysqlandredis.redis.util.RedisConnectionHelper;
-import io.lettuce.core.api.sync.RedisCommands;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -35,35 +36,35 @@ public class RedisDs03_SetVsZSetDifferencesDemo {
         System.out.println(">> [RedisDs03] Redis Set 与 ZSet 多维度差异对比与本地 Redis 底层编码实测");
         System.out.println("================================================================================");
 
-        RedisCommands<String, String> commands = RedisConnectionHelper.getCommands();
+        StringRedisTemplate redisTemplate = RedisConnectionHelper.getStringRedisTemplate();
 
-        // 1. 实机操作 Set: 演示无序、唯一与集合交集运算
-        System.out.println("[步骤 1] 演示 Set 的无序性与集合运算 (如共同好友 SINTER)：");
+        // 1. 实机操作 Set: 演示无序、唯一与集合交集运算 (opsForSet)
+        System.out.println("[步骤 1] 演示 Set 的无序性与集合运算 (如共同好友 SINTER -> opsForSet().intersect)：");
         String user1Follows = "demo:set:user1_follows";
         String user2Follows = "demo:set:user2_follows";
-        commands.del(user1Follows, user2Follows);
+        redisTemplate.delete(Arrays.asList(user1Follows, user2Follows));
 
-        commands.sadd(user1Follows, "Java", "Redis", "MySQL", "Kafka");
-        commands.sadd(user2Follows, "Redis", "MySQL", "Golang", "Docker");
+        redisTemplate.opsForSet().add(user1Follows, "Java", "Redis", "MySQL", "Kafka");
+        redisTemplate.opsForSet().add(user2Follows, "Redis", "MySQL", "Golang", "Docker");
 
-        Set<String> commonInter = commands.sinter(user1Follows, user2Follows);
+        Set<String> commonInter = redisTemplate.opsForSet().intersect(user1Follows, user2Follows);
         System.out.println("  -> [Set 集合运算] 用户 1 与用户 2 共同关注的话题 (交集 SINTER): " + commonInter);
-        System.out.println("  -> Set 底层编码 (纯字符串): " + commands.objectEncoding(user1Follows));
+        System.out.println("  -> Set 底层编码 (纯字符串): " + RedisConnectionHelper.getObjectEncoding(user1Follows));
 
-        // 2. 实机操作 ZSet: 演示有序性与基于 Score 的精准范围过滤
-        System.out.println("\n[步骤 2] 演示 ZSet 的严格有序性与范围查找 (按分数过滤 ZRANGEBYSCORE)：");
+        // 2. 实机操作 ZSet: 演示有序性与基于 Score 的精准范围过滤 (opsForZSet)
+        System.out.println("\n[步骤 2] 演示 ZSet 的严格有序性与范围查找 (按分数过滤 ZRANGEBYSCORE -> opsForZSet().rangeByScore)：");
         String goodsPriceKey = "demo:zset:goods_price";
-        commands.del(goodsPriceKey);
+        redisTemplate.delete(goodsPriceKey);
 
-        commands.zadd(goodsPriceKey, 19.9, "Notebook");
-        commands.zadd(goodsPriceKey, 99.0, "Keyboard");
-        commands.zadd(goodsPriceKey, 299.0, "Earphone");
-        commands.zadd(goodsPriceKey, 1999.0, "Monitor");
+        redisTemplate.opsForZSet().add(goodsPriceKey, "Notebook", 19.9);
+        redisTemplate.opsForZSet().add(goodsPriceKey, "Keyboard", 99.0);
+        redisTemplate.opsForZSet().add(goodsPriceKey, "Earphone", 299.0);
+        redisTemplate.opsForZSet().add(goodsPriceKey, "Monitor", 1999.0);
 
         // 过滤价格在 50 到 300 之间的商品
-        java.util.List<String> midPriceGoods = commands.zrangebyscore(goodsPriceKey, io.lettuce.core.Range.create(50.0, 300.0));
+        Set<String> midPriceGoods = redisTemplate.opsForZSet().rangeByScore(goodsPriceKey, 50.0, 300.0);
         System.out.println("  -> [ZSet 范围过滤] 价格在 50~300 元之间的商品: " + midPriceGoods);
-        System.out.println("  -> ZSet 底层编码: " + commands.objectEncoding(goodsPriceKey));
+        System.out.println("  -> ZSet 底层编码: " + RedisConnectionHelper.getObjectEncoding(goodsPriceKey));
 
         // 3. 对比总结矩阵
         System.out.println("\n[步骤 3] Set 与 ZSet 核心对比矩阵小结：");

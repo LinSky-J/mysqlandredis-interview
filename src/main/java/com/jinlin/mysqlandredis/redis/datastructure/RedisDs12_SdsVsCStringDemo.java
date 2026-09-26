@@ -1,7 +1,7 @@
 package com.jinlin.mysqlandredis.redis.datastructure;
 
 import com.jinlin.mysqlandredis.redis.util.RedisConnectionHelper;
-import io.lettuce.core.api.sync.RedisCommands;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * Redis 数据结构篇 12: 简单动态字符串 (SDS) 内部结构与为什么不用 C 语言原生字符串深度解析
@@ -44,25 +44,25 @@ public class RedisDs12_SdsVsCStringDemo {
         System.out.println(">> [RedisDs12] String 底层简单动态字符串 (SDS) 结构与 C 语言原生字符串对比实测");
         System.out.println("================================================================================");
 
-        RedisCommands<String, String> commands = RedisConnectionHelper.getCommands();
+        StringRedisTemplate redisTemplate = RedisConnectionHelper.getStringRedisTemplate();
 
         // 1. 实机操作演示 SDS 二进制安全特性 (存储包含 \0 的任意字节)
-        System.out.println("[步骤 1] 演示 SDS 的二进制安全 (Binary Safe) 特性：");
+        System.out.println("[步骤 1] 演示 SDS 的二进制安全 (Binary Safe) 特性 (基于 RedisTemplate.opsForValue)：");
         String sdsKey = "demo:sds:binary_safe";
         // 构造一个内部包含控制字符与 \0 的复杂二进制字符串
         String rawBinaryData = "Hello\u0000Redis\u0000World\uffffEnd";
-        commands.set(sdsKey, rawBinaryData);
+        redisTemplate.opsForValue().set(sdsKey, rawBinaryData);
 
-        String fetchedData = commands.get(sdsKey);
-        Long strlen = commands.strlen(sdsKey);
+        String fetchedData = redisTemplate.opsForValue().get(sdsKey);
+        Long strlen = redisTemplate.opsForValue().size(sdsKey);
         System.out.println("  -> 成功存取包含 '\\0' 空字符的二进制内容: " + fetchedData);
-        System.out.println("  -> SDS 执行 STRLEN 耗时为 O(1)，返回精确字节数: " + strlen);
+        System.out.println("  -> SDS 执行 STRLEN (RedisTemplate.opsForValue().size) 耗时为 O(1)，返回精确字节数: " + strlen);
 
-        // 2. 实机演示 SDS 的动态追加扩容 (APPEND)
+        // 2. 实机演示 SDS 的动态追加扩容 (APPEND -> opsForValue.append)
         System.out.println("\n[步骤 2] 演示 SDS 的动态追加扩容 (杜绝缓冲区溢出并触发空间预分配)：");
-        commands.set("demo:sds:append", "Redis");
-        commands.append("demo:sds:append", " is very fast!");
-        System.out.println("  -> 动态追加后内容: " + commands.get("demo:sds:append"));
+        redisTemplate.opsForValue().set("demo:sds:append", "Redis");
+        redisTemplate.opsForValue().append("demo:sds:append", " is very fast!");
+        System.out.println("  -> 动态追加后内容: " + redisTemplate.opsForValue().get("demo:sds:append"));
         System.out.println("  -> 底层 SDS 自动执行空间预分配 (alloc > len)，避免下一次追加再次触发 malloc。");
 
         // 3. 对比总结矩阵

@@ -1,7 +1,7 @@
 package com.jinlin.mysqlandredis.redis.datastructure;
 
 import com.jinlin.mysqlandredis.redis.util.RedisConnectionHelper;
-import io.lettuce.core.api.sync.RedisCommands;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * Redis 数据结构篇 05: 跳跃表 (Skiplist) 物理结构、多级索引与跨度 (Span) 排名实现
@@ -35,18 +35,18 @@ public class RedisDs05_SkiplistStructureAndSearchDemo {
         System.out.println(">> [RedisDs05] 跳表 (Skiplist) 物理层级模型、多级向前指针与跨度 (Span) 排名实测");
         System.out.println("================================================================================");
 
-        RedisCommands<String, String> commands = RedisConnectionHelper.getCommands();
+        StringRedisTemplate redisTemplate = RedisConnectionHelper.getStringRedisTemplate();
 
         String skipKey = "demo:skiplist:simulation";
-        commands.del(skipKey);
+        redisTemplate.delete(skipKey);
 
-        // 写入具备清晰分值阶梯的数据
-        commands.zadd(skipKey, 10.0, "Node_10");
-        commands.zadd(skipKey, 25.0, "Node_25");
-        commands.zadd(skipKey, 40.0, "Node_40");
-        commands.zadd(skipKey, 55.0, "Node_55");
-        commands.zadd(skipKey, 70.0, "Node_70");
-        commands.zadd(skipKey, 85.0, "Node_85");
+        // 写入具备清晰分值阶梯的数据 (opsForZSet.add)
+        redisTemplate.opsForZSet().add(skipKey, "Node_10", 10.0);
+        redisTemplate.opsForZSet().add(skipKey, "Node_25", 25.0);
+        redisTemplate.opsForZSet().add(skipKey, "Node_40", 40.0);
+        redisTemplate.opsForZSet().add(skipKey, "Node_55", 55.0);
+        redisTemplate.opsForZSet().add(skipKey, "Node_70", 70.0);
+        redisTemplate.opsForZSet().add(skipKey, "Node_85", 85.0);
 
         System.out.println("[步骤 1] 模拟跳表底层自顶向下的查找路径与 Span 累加计算全局 Rank：");
         System.out.println("  - 目标: 查找 Node_55 (score=55.0)");
@@ -57,9 +57,9 @@ public class RedisDs05_SkiplistStructureAndSearchDemo {
         System.out.println("    [Level 1] Node_40 -> (forward, span=1) -> 成功命中 Node_55! [累加 Span = 3 + 1 = 4]");
         System.out.println("  - 结论: 经历极少次跨越，直接精确定位目标，并且累加的 Span=4 即为该元素在底层升序中的排名！");
 
-        // 验证 Lettuce ZRANK 执行结果
-        Long rank = commands.zrank(skipKey, "Node_55");
-        System.out.println("  -> 本地 Redis 执行 ZRANK 返回的 0-based 排名: " + rank + " (对应累计跨度 4 个节点)");
+        // 验证 RedisTemplate opsForZSet().rank 执行结果
+        Long rank = redisTemplate.opsForZSet().rank(skipKey, "Node_55");
+        System.out.println("  -> 本地 Redis 执行 ZRANK (opsForZSet().rank) 返回的 0-based 排名: " + rank + " (对应累计跨度 4 个节点)");
 
         // 3. 跳表结构 ASCII 可视化图解
         System.out.println("\n[步骤 2] 跳跃表内部多级索引模型示意图：");
