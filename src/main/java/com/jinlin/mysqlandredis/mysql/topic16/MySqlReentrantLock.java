@@ -31,18 +31,10 @@ public class MySqlReentrantLock {
     }
 
     /**
-     * 初始化锁数据表
+     * 重置锁数据表中的历史数据 (表结构已通过 DataGrip 执行 sql/01_mysql_basics_schema.sql 创建)
      */
     public static void initLockTable() {
-        String dropTable = "DROP TABLE IF EXISTS mysql_reentrant_lock;";
-        String createTable = "CREATE TABLE mysql_reentrant_lock ("
-                + "  lock_name VARCHAR(64) NOT NULL PRIMARY KEY,"
-                + "  lock_owner VARCHAR(100) NOT NULL,"
-                + "  reentrant_count INT NOT NULL DEFAULT 1,"
-                + "  expire_time BIGINT NOT NULL,"
-                + "  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-        DbConnectionHelper.executeSqlScript(dropTable, createTable);
+        DbConnectionHelper.executeSqlScript("DELETE FROM mysql_reentrant_lock;");
     }
 
     /**

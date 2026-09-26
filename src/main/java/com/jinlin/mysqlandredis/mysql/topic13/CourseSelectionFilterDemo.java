@@ -18,41 +18,26 @@ public class CourseSelectionFilterDemo {
         System.out.println("【面试题 13】SQL题：求不存在01课程但存在02课程的学生成绩实战");
         System.out.println("====================================================================");
 
-        // 1. 初始化数据表
-        String dropScore = "DROP TABLE IF EXISTS interview_course_score;";
-        String dropStudent = "DROP TABLE IF EXISTS interview_student;";
-
-        String createStudent = "CREATE TABLE interview_student ("
-                + "  student_id VARCHAR(20) PRIMARY KEY,"
-                + "  student_name VARCHAR(50) NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String createScore = "CREATE TABLE interview_course_score ("
-                + "  student_id VARCHAR(20) NOT NULL,"
-                + "  course_id VARCHAR(20) NOT NULL,"
-                + "  score DECIMAL(5, 2) NOT NULL,"
-                + "  PRIMARY KEY (student_id, course_id),"
-                + "  INDEX idx_course (course_id)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertStudent = "INSERT INTO interview_student (student_id, student_name) VALUES "
-                + "('s01', '张三 (选了01, 02)'), "
-                + "('s02', '李四 (选了02, 03 -> 目标命中)'), "
-                + "('s03', '王五 (选了01, 03)'), "
-                + "('s04', '赵六 (仅选02 -> 目标命中)'), "
-                + "('s05', '孙七 (仅选03)');";
-
-        String insertScore = "INSERT INTO interview_course_score (student_id, course_id, score) VALUES "
-                + "('s01', '01', 88.0), "
-                + "('s01', '02', 90.0), "
-                + "('s02', '02', 85.5), "
-                + "('s02', '03', 92.0), "
-                + "('s03', '01', 76.0), "
-                + "('s03', '03', 81.0), "
-                + "('s04', '02', 95.0), "
-                + "('s05', '03', 89.0);";
-
-        DbConnectionHelper.executeSqlScript(dropScore, dropStudent, createStudent, createScore, insertStudent, insertScore);
+        // 1. 测试数据重置 (表结构已通过 DataGrip 执行 sql/01_mysql_basics_schema.sql 创建)
+        DbConnectionHelper.executeSqlScript(
+                "DELETE FROM interview_course_score;",
+                "DELETE FROM interview_student;",
+                "INSERT INTO interview_student (student_id, student_name) VALUES "
+                        + "('s01', '张三 (选了01, 02)'), "
+                        + "('s02', '李四 (选了02, 03 -> 目标命中)'), "
+                        + "('s03', '王五 (选了01, 03)'), "
+                        + "('s04', '赵六 (仅选02 -> 目标命中)'), "
+                        + "('s05', '孙七 (仅选03)');",
+                "INSERT INTO interview_course_score (student_id, course_id, score) VALUES "
+                        + "('s01', '01', 88.0), "
+                        + "('s01', '02', 90.0), "
+                        + "('s02', '02', 85.5), "
+                        + "('s02', '03', 92.0), "
+                        + "('s03', '01', 76.0), "
+                        + "('s03', '03', 81.0), "
+                        + "('s04', '02', 95.0), "
+                        + "('s05', '03', 89.0);"
+        );
 
         // 2. 解法 1: EXISTS + NOT EXISTS
         String solution1 = "SELECT "

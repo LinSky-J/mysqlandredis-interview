@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 06: int(1) 和 int(10) 在 MySQL 中有什么不同？
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/01_mysql_basics_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注 int(1) 与 int(10) 物理存储容量与前导补零显示宽度的实机验证。
+ * 
  * 核心考点：
  * 1. 存储大小：完全一样，均为 4 字节 (32-bit)。
  * 2. 数值范围：完全一样，[-2147483648 ~ 2147483647] (有符号) 或 [0 ~ 4294967295] (无符号)。
@@ -18,26 +21,8 @@ public class IntDisplayWidthDemo {
         System.out.println("【面试题 06】int(1) vs int(10) 存储与显示宽度实机验证");
         System.out.println("====================================================================");
 
-        // 1. 初始化表
-        String dropTable = "DROP TABLE IF EXISTS interview_int_display;";
-        String createTable = "CREATE TABLE interview_int_display ("
-                + "  id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  col_int1 INT(1) COMMENT 'int(1)',"
-                + "  col_int10 INT(10) COMMENT 'int(10)',"
-                + "  col_zerofill_5 INT(5) ZEROFILL COMMENT '带 ZEROFILL 宽度的 5 位'"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        // 插入两组测试数据:
-        // 第 1 组: 存入 32 位整型上限 2147483647 到 int(1) 中
-        // 第 2 组: 存入 小数字 18 到 int(5) ZEROFILL 中 (观察前导补零)
-        String insertData = "INSERT INTO interview_int_display (col_int1, col_int10, col_zerofill_5) VALUES "
-                + "(2147483647, 2147483647, 18), "
-                + "(7, 7, 7);";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
-
-        // 2. 查询并打印
-        String verifySql = "SELECT id, col_int1, col_int10, col_zerofill_5 FROM interview_int_display;";
+        // 查询并打印
+        String verifySql = "SELECT id, num_tiny_width, num_normal, num_zerofill FROM interview_int_display;";
         DbConnectionHelper.printQueryResults("int(1) vs int(10) 存取结果验证", verifySql);
 
         printInsight();

@@ -18,30 +18,23 @@ public class StudentScoreRankingDemo {
         System.out.println("【面试题 14】学生总分排名 5-10 名查询实战 (LIMIT 偏移法 vs 窗口函数)");
         System.out.println("====================================================================");
 
-        // 1. 初始化 student_score 表并插入 12 位学生成绩
-        String dropTable = "DROP TABLE IF EXISTS student_score;";
-        String createTable = "CREATE TABLE student_score ("
-                + "  stu_id INT NOT NULL,"
-                + "  subject_id INT NOT NULL,"
-                + "  score DECIMAL(5, 2) NOT NULL,"
-                + "  PRIMARY KEY (stu_id, subject_id)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertData = "INSERT INTO student_score (stu_id, subject_id, score) VALUES "
-                + "(101, 1, 98), (101, 2, 99), " // 197 (第1名)
-                + "(102, 1, 95), (102, 2, 96), " // 191 (第2名)
-                + "(103, 1, 92), (103, 2, 94), " // 186 (第3名)
-                + "(104, 1, 90), (104, 2, 91), " // 181 (第4名)
-                + "(105, 1, 88), (105, 2, 89), " // 177 (第5名)
-                + "(106, 1, 85), (106, 2, 86), " // 171 (第6名)
-                + "(107, 1, 82), (107, 2, 83), " // 165 (第7名)
-                + "(108, 1, 80), (108, 2, 80), " // 160 (第8名)
-                + "(109, 1, 78), (109, 2, 77), " // 155 (第9名)
-                + "(110, 1, 75), (110, 2, 74), " // 149 (第10名)
-                + "(111, 1, 70), (111, 2, 70), " // 140 (第11名)
-                + "(112, 1, 60), (112, 2, 65);";  // 125 (第12名)
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
+        // 1. 测试数据重置 (表结构已通过 DataGrip 执行 sql/01_mysql_basics_schema.sql 创建)
+        DbConnectionHelper.executeSqlScript(
+                "DELETE FROM student_score;",
+                "INSERT INTO student_score (stu_id, subject_id, score) VALUES "
+                        + "(101, 1, 98), (101, 2, 99), " // 197 (第1名)
+                        + "(102, 1, 95), (102, 2, 96), " // 191 (第2名)
+                        + "(103, 1, 92), (103, 2, 94), " // 186 (第3名)
+                        + "(104, 1, 90), (104, 2, 91), " // 181 (第4名)
+                        + "(105, 1, 88), (105, 2, 89), " // 177 (第5名)
+                        + "(106, 1, 85), (106, 2, 86), " // 171 (第6名)
+                        + "(107, 1, 82), (107, 2, 83), " // 165 (第7名)
+                        + "(108, 1, 80), (108, 2, 80), " // 160 (第8名)
+                        + "(109, 1, 78), (109, 2, 77), " // 155 (第9名)
+                        + "(110, 1, 75), (110, 2, 74), " // 149 (第10名)
+                        + "(111, 1, 70), (111, 2, 70), " // 140 (第11名)
+                        + "(112, 1, 60), (112, 2, 65);"  // 125 (第12名)
+        );
 
         // 2. 解法 1: LIMIT 4, 6
         String limitSql = "SELECT "

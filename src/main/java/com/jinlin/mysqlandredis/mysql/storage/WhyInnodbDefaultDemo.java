@@ -3,11 +3,13 @@ package com.jinlin.mysqlandredis.mysql.storage;
 import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
  * 问题 03: MySQL 为什么 InnoDB 是默认引擎？
+ * 
+ * 说明：数据表结构及初始化数据已移至 /sql/02_storage_engine_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注面试题核心原理讲解、事务原子性回滚与行级锁并发实操验证。
  * 
  * 核心考点：
  * 1. 历史沿革：从 MySQL 5.5 开始，InnoDB 成为默认引擎；MySQL 8.0 系统字典表全部改为 InnoDB。
@@ -29,19 +31,7 @@ public class WhyInnodbDefaultDemo {
         // 1. 查询当前默认引擎配置
         DbConnectionHelper.printQueryResults("当前 MySQL 实例默认存储引擎", "SHOW VARIABLES LIKE 'default_storage_engine';");
 
-        // 2. 初始化测试表
-        String dropTable = "DROP TABLE IF EXISTS interview_why_innodb;";
-        String createTable = "CREATE TABLE interview_why_innodb ("
-                + "  id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  account_name VARCHAR(50) NOT NULL,"
-                + "  balance DECIMAL(10, 2) NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertData = "INSERT INTO interview_why_innodb (account_name, balance) VALUES ('张三', 1000.00), ('李四', 2000.00);";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
-
-        // 3. 验证优势一：ACID 事务与异常回滚机制 (MyISAM 无法做到)
+        // 2. 验证优势一：ACID 事务与异常回滚机制 (在预先由 DataGrip 创建好的 interview_why_innodb 表上验证)
         System.out.println(">>> [验证 1] 事务原子性与回滚测试 (扣减张三 500 元后模拟异常回滚):");
         try (Connection conn = DbConnectionHelper.getConnection()) {
             conn.setAutoCommit(false); // 开启事务
@@ -58,7 +48,7 @@ public class WhyInnodbDefaultDemo {
         DbConnectionHelper.printQueryResults("回滚后张三的余额验证 (必须依然为初始的 1000.00)", 
                 "SELECT id, account_name, balance FROM interview_why_innodb WHERE id = 1;");
 
-        // 4. 验证优势二：行级并发更新互不阻塞 (行级锁验证)
+        // 3. 验证优势二：行级并发更新互不阻塞 (行级锁验证)
         System.out.println(">>> [验证 2] 行级并发锁验证 (同时在两个独立连接分别更新 id=1 与 id=2):");
         try (Connection conn1 = DbConnectionHelper.getConnection();
              Connection conn2 = DbConnectionHelper.getConnection()) {

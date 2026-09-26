@@ -8,6 +8,9 @@ import java.sql.SQLException;
 /**
  * 问题 04: 说一下 MySQL 的 InnoDB 与 MyISAM 的区别？
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/02_storage_engine_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注面试题核心考点深度对比、COUNT(*) 执行计划差异及事务回滚无效性实测。
+ * 
  * 核心考点深度对比：
  * 1. 事务支持：InnoDB 强力支持 ACID；MyISAM 不支持任何事务操作。
  * 2. 锁级别：InnoDB 支持行级锁 (Record Lock/Gap Lock)；MyISAM 仅支持全表锁。
@@ -26,40 +29,15 @@ public class InnodbVsMyisamDemo {
         System.out.println("【面试题 04】InnoDB vs MyISAM 核心技术差异实机验证与对比矩阵");
         System.out.println("====================================================================");
 
-        // 1. 初始化两张结构完全相同的对比表
-        String dropInnodb = "DROP TABLE IF EXISTS interview_cmp_innodb;";
-        String dropMyisam = "DROP TABLE IF EXISTS interview_cmp_myisam;";
-
-        String createInnodb = "CREATE TABLE interview_cmp_innodb ("
-                + "  id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  username VARCHAR(50) NOT NULL,"
-                + "  score INT NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String createMyisam = "CREATE TABLE interview_cmp_myisam ("
-                + "  id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  username VARCHAR(50) NOT NULL,"
-                + "  score INT NOT NULL"
-                + ") ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;";
-
-        String insertDataInnodb = "INSERT INTO interview_cmp_innodb (username, score) VALUES ('Alice', 95), ('Bob', 88), ('Charlie', 91);";
-        String insertDataMyisam = "INSERT INTO interview_cmp_myisam (username, score) VALUES ('Alice', 95), ('Bob', 88), ('Charlie', 91);";
-
-        DbConnectionHelper.executeSqlScript(
-                dropInnodb, dropMyisam,
-                createInnodb, createMyisam,
-                insertDataInnodb, insertDataMyisam
-        );
-
-        // 2. 验证 COUNT(*) 执行计划差异
+        // 1. 验证 COUNT(*) 执行计划差异 (在预先由 DataGrip 创建好的对比表上验证)
         DbConnectionHelper.printQueryResults("MyISAM 执行 COUNT(*) 的执行计划 (注意 Extra 列为 Select tables optimized away)", 
                 "EXPLAIN SELECT COUNT(*) FROM interview_cmp_myisam;");
 
         DbConnectionHelper.printQueryResults("InnoDB 执行 COUNT(*) 的执行计划 (必须走索引逐行计算符合当前事务版本的数据)", 
                 "EXPLAIN SELECT COUNT(*) FROM interview_cmp_innodb;");
 
-        // 3. 验证 MyISAM 不支持事务与回滚 (插入后 rollback 无效)
-        System.out.println(">>> [验证 3] 测试 MyISAM 对事务回滚的反应:");
+        // 2. 验证 MyISAM 不支持事务与回滚 (插入后 rollback 无效)
+        System.out.println(">>> [验证 2] 测试 MyISAM 对事务回滚的反应:");
         try (Connection conn = DbConnectionHelper.getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement("INSERT INTO interview_cmp_myisam (username, score) VALUES ('Dave(MyISAM测试)', 70)")) {

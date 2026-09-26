@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 01: NOSQL 和 SQL 的区别？
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/01_mysql_basics_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注面试题核心区别剖析与多表关联聚合查询实机验证。
+ * 
  * 核心对比点：
  * 1. 数据模型与 Schema：SQL 严格预定义关系模式；NoSQL 动态无模式(键值/文档/列族/图)。
  * 2. 事务模型：SQL 严格遵循 ACID (原子性/一致性/隔离性/持久性)；NoSQL 遵循 CAP/BASE 最终一致性。
@@ -18,38 +21,7 @@ public class NoSqlVsSqlExplanation {
         System.out.println("【面试题 01】NOSQL 和 SQL 的核心区别深度解析与实机演示");
         System.out.println("====================================================================");
 
-        // 1. 初始化演示数据表 (真实 MySQL 交互)
-        String dropUserTable = "DROP TABLE IF EXISTS interview_sql_user;";
-        String createUserTable = "CREATE TABLE interview_sql_user ("
-                + "  id BIGINT PRIMARY KEY AUTO_INCREMENT,"
-                + "  username VARCHAR(50) NOT NULL UNIQUE,"
-                + "  email VARCHAR(100) NOT NULL,"
-                + "  balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00,"
-                + "  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String dropOrderTable = "DROP TABLE IF EXISTS interview_sql_order;";
-        String createOrderTable = "CREATE TABLE interview_sql_order ("
-                + "  order_id BIGINT PRIMARY KEY AUTO_INCREMENT,"
-                + "  user_id BIGINT NOT NULL,"
-                + "  amount DECIMAL(10, 2) NOT NULL,"
-                + "  status VARCHAR(20) NOT NULL DEFAULT 'PENDING',"
-                + "  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                + "  INDEX idx_user_id (user_id)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertUser = "INSERT INTO interview_sql_user (username, email, balance) VALUES "
-                + "('zhangsan', 'zhangsan@example.com', 1000.00),"
-                + "('lisi', 'lisi@example.com', 2500.50);";
-
-        String insertOrder = "INSERT INTO interview_sql_order (user_id, amount, status) VALUES "
-                + "(1, 299.00, 'PAID'),"
-                + "(1, 499.00, 'PAID'),"
-                + "(2, 88.00, 'PENDING');";
-
-        DbConnectionHelper.executeSqlScript(dropOrderTable, dropUserTable, createUserTable, createOrderTable, insertUser, insertOrder);
-
-        // 2. 执行典型 SQL 关联聚合查询
+        // 执行典型 SQL 关联聚合查询 (验证关系模型对复杂分析与 ACID 数据一致性的强大支持)
         String joinAggregationSql = "SELECT "
                 + "  u.id AS user_id, "
                 + "  u.username, "
@@ -62,7 +34,6 @@ public class NoSqlVsSqlExplanation {
 
         DbConnectionHelper.printQueryResults("SQL 优势特性：关系模型、复杂 JOIN 连表聚合与 ACID 数据一致性保障", joinAggregationSql);
 
-        // 3. 核心对比总结打印
         printConceptualDifferences();
     }
 

@@ -21,25 +21,17 @@ public class SqlExecutionOrderExplanation {
         System.out.println("【面试题 12】SQL 查询生命周期与底层逻辑执行顺序深度解析");
         System.out.println("====================================================================");
 
-        // 1. 初始化销售演示数据
-        String dropTable = "DROP TABLE IF EXISTS interview_exec_order_sales;";
-        String createTable = "CREATE TABLE interview_exec_order_sales ("
-                + "  id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  dept_name VARCHAR(50) NOT NULL,"
-                + "  salesperson VARCHAR(50) NOT NULL,"
-                + "  amount DECIMAL(10, 2) NOT NULL,"
-                + "  status VARCHAR(20) NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertData = "INSERT INTO interview_exec_order_sales (dept_name, salesperson, amount, status) VALUES "
-                + "('华东区', '张伟', 1200.00, 'PAID'), "
-                + "('华东区', '张伟', 800.00,  'PAID'), "
-                + "('华东区', '李芳', 500.00,  'REFUNDED'), "
-                + "('华北区', '王刚', 3000.00, 'PAID'), "
-                + "('华北区', '王刚', 2500.00, 'PAID'), "
-                + "('华南区', '赵强', 400.00,  'PAID');";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
+        // 1. 测试数据重置 (表结构已通过 DataGrip 执行 sql/01_mysql_basics_schema.sql 创建)
+        DbConnectionHelper.executeSqlScript(
+                "DELETE FROM interview_exec_order_sales;",
+                "INSERT INTO interview_exec_order_sales (dept_name, salesperson, amount, status) VALUES "
+                        + "('华东区', '张伟', 1200.00, 'PAID'), "
+                        + "('华东区', '张伟', 800.00,  'PAID'), "
+                        + "('华东区', '李芳', 500.00,  'REFUNDED'), "
+                        + "('华北区', '王刚', 3000.00, 'PAID'), "
+                        + "('华北区', '王刚', 2500.00, 'PAID'), "
+                        + "('华南区', '赵强', 400.00,  'PAID');"
+        );
 
         // 2. 构造综合 SQL，涵盖 FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY, LIMIT
         String complexSql = "SELECT "

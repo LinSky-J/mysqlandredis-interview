@@ -25,31 +25,13 @@ public class ForeignKeyConstraintsDemo {
         System.out.println("【面试题 09】MySQL 物理外键约束、级联删除与阿里开发规范实战");
         System.out.println("====================================================================");
 
-        // 1. 初始化主表与带外键约束的子表
-        String dropStudent = "DROP TABLE IF EXISTS interview_fk_student;";
-        String dropCollege = "DROP TABLE IF EXISTS interview_fk_college;";
-
-        String createCollege = "CREATE TABLE interview_fk_college ("
-                + "  college_id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  college_name VARCHAR(50) NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String createStudent = "CREATE TABLE interview_fk_student ("
-                + "  student_id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  student_name VARCHAR(50) NOT NULL,"
-                + "  college_id INT NOT NULL,"
-                + "  CONSTRAINT fk_student_college FOREIGN KEY (college_id) "
-                + "    REFERENCES interview_fk_college (college_id) "
-                + "    ON DELETE CASCADE ON UPDATE CASCADE"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertCollege = "INSERT INTO interview_fk_college (college_id, college_name) VALUES "
-                + "(1, '计算机学院'), (2, '软件学院');";
-
-        String insertStudent = "INSERT INTO interview_fk_student (student_name, college_id) VALUES "
-                + "('张三', 1), ('李四', 1), ('王五', 2);";
-
-        DbConnectionHelper.executeSqlScript(dropStudent, dropCollege, createCollege, createStudent, insertCollege, insertStudent);
+        // 1. 测试数据重置 (表结构已通过 DataGrip 执行 sql/01_mysql_basics_schema.sql 创建)
+        DbConnectionHelper.executeSqlScript(
+                "DELETE FROM interview_fk_student;",
+                "DELETE FROM interview_fk_college;",
+                "INSERT INTO interview_fk_college (college_id, college_name) VALUES (1, '计算机学院'), (2, '软件学院');",
+                "INSERT INTO interview_fk_student (student_name, college_id) VALUES ('张三', 1), ('李四', 1), ('王五', 2);"
+        );
         DbConnectionHelper.printQueryResults("初始学生与学院数据", 
                 "SELECT s.student_id, s.student_name, c.college_name "
                 + "FROM interview_fk_student s JOIN interview_fk_college c ON s.college_id = c.college_id;");

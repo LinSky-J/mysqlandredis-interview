@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 02: 讲一讲 MySQL 的引擎吧，你有什么了解？
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/02_storage_engine_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注面试题全景架构对比与 information_schema 引擎底层元数据分析。
+ * 
  * 核心考点：
  * 1. 插件式存储引擎：引擎作用在表级，支持可插拔扩展。
  * 2. 主流引擎横向对比：
@@ -18,45 +21,13 @@ public class MysqlEnginesOverviewDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");
-        System.out.println("【面试题 02】MySQL 常见存储引擎全景剖析与多引擎建表实机演示");
+        System.out.println("【面试题 02】MySQL 常见存储引擎全景剖析与多引擎元数据实机演示");
         System.out.println("====================================================================");
 
         // 1. 查询当前真实 MySQL 实例支持的全部引擎
         DbConnectionHelper.printQueryResults("当前 MySQL 实例支持的全部存储引擎列表 (SHOW ENGINES)", "SHOW ENGINES;");
 
-        // 2. 初始化创建三种具有代表性的引擎表 (MEMORY, MyISAM, InnoDB)
-        String dropMemory = "DROP TABLE IF EXISTS interview_engine_memory;";
-        String createMemory = "CREATE TABLE interview_engine_memory ("
-                + "  id INT PRIMARY KEY,"
-                + "  key_name VARCHAR(50) NOT NULL,"
-                + "  val VARCHAR(100) NOT NULL"
-                + ") ENGINE=MEMORY DEFAULT CHARSET=utf8mb4;";
-
-        String dropMyisam = "DROP TABLE IF EXISTS interview_engine_myisam;";
-        String createMyisam = "CREATE TABLE interview_engine_myisam ("
-                + "  id INT PRIMARY KEY,"
-                + "  log_title VARCHAR(100) NOT NULL,"
-                + "  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-                + ") ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;";
-
-        String dropInnodb = "DROP TABLE IF EXISTS interview_engine_innodb;";
-        String createInnodb = "CREATE TABLE interview_engine_innodb ("
-                + "  id INT PRIMARY KEY,"
-                + "  account_no VARCHAR(50) NOT NULL,"
-                + "  balance DECIMAL(12, 2) NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertMemory = "INSERT INTO interview_engine_memory VALUES (1, 'SESSION_TOKEN', 'abc123xyz');";
-        String insertMyisam = "INSERT INTO interview_engine_myisam VALUES (1, '系统启动日志', NOW());";
-        String insertInnodb = "INSERT INTO interview_engine_innodb VALUES (1, '622202000000001', 99999.00);";
-
-        DbConnectionHelper.executeSqlScript(
-                dropMemory, createMemory, insertMemory,
-                dropMyisam, createMyisam, insertMyisam,
-                dropInnodb, createInnodb, insertInnodb
-        );
-
-        // 3. 从 information_schema 查询这三张表在底层元数据中的差异
+        // 2. 从 information_schema 查询由 DataGrip 统一初始化的三张代表性引擎表元数据差异
         String queryMetaSql = "SELECT "
                 + "  TABLE_NAME, "
                 + "  ENGINE, "

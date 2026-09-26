@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 01: 执行一条 SQL 请求的过程是什么？
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/02_storage_engine_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注面试题全生命周期深度讲解、优化器执行计划与两阶段提交 (2PC) 机制剖析。
+ * 
  * 核心架构生命周期全链路：
  * 
  * 1. Server 层 (无关于具体引擎的公共逻辑):
@@ -33,32 +36,14 @@ public class SqlExecutionLifecycleDemo {
         System.out.println("【面试题 01】执行一条 SQL 请求的全生命周期与两阶段提交实机剖析");
         System.out.println("====================================================================");
 
-        // 1. 初始化演示订单表
-        String dropTable = "DROP TABLE IF EXISTS interview_engine_order;";
-        String createTable = "CREATE TABLE interview_engine_order ("
-                + "  order_id BIGINT PRIMARY KEY AUTO_INCREMENT,"
-                + "  user_id BIGINT NOT NULL,"
-                + "  amount DECIMAL(10, 2) NOT NULL,"
-                + "  status VARCHAR(20) NOT NULL DEFAULT 'CREATED',"
-                + "  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                + "  INDEX idx_user_status (user_id, status)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertData = "INSERT INTO interview_engine_order (user_id, amount, status) VALUES (1001, 299.00, 'CREATED');";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
-
-        // 2. 演示优化器 (Optimizer) 工作结果: 通过 EXPLAIN 观察执行计划与索引选择
+        // 1. 演示优化器 (Optimizer) 工作结果: 通过 EXPLAIN 观察执行计划与索引选择
         String explainSql = "EXPLAIN SELECT order_id, amount, status "
                 + "FROM interview_engine_order "
                 + "WHERE user_id = 1001 AND status = 'CREATED';";
         DbConnectionHelper.printQueryResults("【优化器阶段产出】查看 EXPLAIN 执行计划 (走 idx_user_status 联合索引)", explainSql);
 
-        // 3. 执行更新写操作 (触发两阶段提交与内存脏页生成)
-        String updateSql = "UPDATE interview_engine_order SET status = 'PAID', amount = 318.00 WHERE order_id = 1;";
-        DbConnectionHelper.executeSqlScript(updateSql);
-
-        DbConnectionHelper.printQueryResults("【执行器与引擎层更新结果】查询更新后的数据行", 
+        // 2. 演示执行器与引擎交互: 观察已初始化的数据状态
+        DbConnectionHelper.printQueryResults("【执行器阶段产出】查询 interview_engine_order 当前行数据", 
                 "SELECT order_id, user_id, amount, status FROM interview_engine_order WHERE order_id = 1;");
 
         printLifecycleDetails();

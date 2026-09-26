@@ -10,7 +10,6 @@ import java.sql.Statement;
  */
 public class DbConnectionHelper {
 
-    private static final String BASE_URL = "jdbc:mysql://127.0.0.1:3306/?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true";
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/interview_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true";
     private static final String USER = "root";
     private static final String PASS = "wjl315698";
@@ -18,18 +17,8 @@ public class DbConnectionHelper {
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            initDatabase();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("MySQL JDBC Driver 未加载", e);
-        }
-    }
-
-    private static void initDatabase() {
-        try (Connection conn = DriverManager.getConnection(BASE_URL, USER, PASS);
-             Statement stmt = conn.createStatement()) {
-            stmt.execute("CREATE DATABASE IF NOT EXISTS interview_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
-        } catch (SQLException e) {
-            System.err.println("初始化 interview_db 数据库提示: " + e.getMessage());
         }
     }
 

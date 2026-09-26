@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 05: 索引失效 8 大场景、回表查询与覆盖索引深度实机剖析
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/03_index_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注面试题核心逻辑剖析、索引失效场景与覆盖索引消除回表实机验证。
+ * 
  * 核心考点深度解析：
  * 1. 回表查询 (Table Lookup)：二级索引叶子只含索引列+主键；SELECT 其他列需拿主键再查聚簇索引，引发高代价随机 I/O。
  * 2. 覆盖索引 (Covering Index)：查询列全部位于二级索引中，无需回表，Extra 显著呈现【Using index】。
@@ -25,51 +28,31 @@ public class IndexInvalidationAndCoveringDemo {
         System.out.println("【索引模块 05】索引失效典型案例、回表查询与覆盖索引实机验证");
         System.out.println("====================================================================");
 
-        // 1. 初始化包含复合索引与单列索引的演示表
-        String dropTable = "DROP TABLE IF EXISTS interview_invalidation_demo;";
-        String createTable = "CREATE TABLE interview_invalidation_demo ("
-                + "  id BIGINT PRIMARY KEY AUTO_INCREMENT,"
-                + "  user_name VARCHAR(50) NOT NULL,"
-                + "  phone VARCHAR(20) NOT NULL,"
-                + "  age INT NOT NULL,"
-                + "  address VARCHAR(200) NOT NULL,"
-                + "  INDEX idx_user_age (user_name, age),"
-                + "  INDEX idx_phone (phone)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        // 1. 覆盖索引 vs 回表查询对比实测
+        DbConnectionHelper.printQueryResults("【回表案例】查询包含非索引列 extra_info (需拿主键回聚簇索引查完整行)", 
+                "EXPLAIN SELECT user_code, age, extra_info FROM interview_invalidation WHERE user_code = 'USR1001';");
 
-        String insertData = "INSERT INTO interview_invalidation_demo (user_name, phone, age, address) VALUES "
-                + "('zhangsan', '13800000001', 25, '北京市海淀区中关村南大街1号'), "
-                + "('lisi',     '13800000002', 30, '上海市浦东新区陆家嘴环路88号'), "
-                + "('wangwu',   '13900000003', 28, '深圳市南山区科技园南区5栋'), "
-                + "('zhaoliu',  '13900000004', 35, '广州市天河区天河路100号');";
+        DbConnectionHelper.printQueryResults("【覆盖索引案例】仅查 id, user_code, age (Extra 明确显示 Using index，零回表！)", 
+                "EXPLAIN SELECT id, user_code, age FROM interview_invalidation WHERE user_code = 'USR1001';");
 
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
-
-        // 2. 覆盖索引 vs 回表查询对比实测
-        DbConnectionHelper.printQueryResults("【回表案例】查询包含非索引列 address (需回聚簇索引查完整行)", 
-                "EXPLAIN SELECT user_name, age, address FROM interview_invalidation_demo WHERE user_name = 'zhangsan';");
-
-        DbConnectionHelper.printQueryResults("【覆盖索引案例】仅查 id, user_name, age (Extra 明确显示 Using index，零回表！)", 
-                "EXPLAIN SELECT id, user_name, age FROM interview_invalidation_demo WHERE user_name = 'zhangsan';");
-
-        // 3. 索引失效案例实测
+        // 2. 索引失效典型案例实测
         DbConnectionHelper.printQueryResults("【失效 1: 索引列使用函数 UPPER() -> type=ALL 全表扫描】", 
-                "EXPLAIN SELECT * FROM interview_invalidation_demo WHERE UPPER(user_name) = 'ZHANGSAN';");
+                "EXPLAIN SELECT * FROM interview_invalidation WHERE UPPER(user_code) = 'USR1001';");
 
-        DbConnectionHelper.printQueryResults("【失效 2: 左模糊匹配 LIKE '%san' -> type=ALL 全表扫描】", 
-                "EXPLAIN SELECT * FROM interview_invalidation_demo WHERE user_name LIKE '%san';");
+        DbConnectionHelper.printQueryResults("【失效 2: 左模糊匹配 LIKE '%1001' -> type=ALL 全表扫描】", 
+                "EXPLAIN SELECT * FROM interview_invalidation WHERE user_code LIKE '%1001';");
 
-        DbConnectionHelper.printQueryResults("【正常对比: 右模糊匹配 LIKE 'zhang%' -> type=range 正常命中索引】", 
-                "EXPLAIN SELECT * FROM interview_invalidation_demo WHERE user_name LIKE 'zhang%';");
+        DbConnectionHelper.printQueryResults("【正常对比: 右模糊匹配 LIKE 'USR10%' -> type=range 正常命中索引】", 
+                "EXPLAIN SELECT * FROM interview_invalidation WHERE user_code LIKE 'USR10%';");
 
-        DbConnectionHelper.printQueryResults("【失效 3: 隐式类型转换 (phone 为 VARCHAR 传入整型数字) -> type=ALL 索引彻底失效！】", 
-                "EXPLAIN SELECT * FROM interview_invalidation_demo WHERE phone = 13800000001;");
+        DbConnectionHelper.printQueryResults("【失效 3: 隐式类型转换 (phone_num 为 VARCHAR 传入整型数字) -> type=ALL 索引彻底失效！】", 
+                "EXPLAIN SELECT * FROM interview_invalidation WHERE phone_num = 13800000001;");
 
-        DbConnectionHelper.printQueryResults("【正常对比: phone 传入加单引号字符串 -> type=ref 走索引】", 
-                "EXPLAIN SELECT * FROM interview_invalidation_demo WHERE phone = '13800000001';");
+        DbConnectionHelper.printQueryResults("【正常对比: phone_num 传入加单引号字符串 -> type=ref 走索引】", 
+                "EXPLAIN SELECT * FROM interview_invalidation WHERE phone_num = '13800000001';");
 
-        DbConnectionHelper.printQueryResults("【失效 4: OR 关联无索引列 address -> type=ALL 全表扫描】", 
-                "EXPLAIN SELECT * FROM interview_invalidation_demo WHERE phone = '13800000001' OR address = '北京';");
+        DbConnectionHelper.printQueryResults("【失效 4: OR 关联无索引列 extra_info -> type=ALL 全表扫描】", 
+                "EXPLAIN SELECT * FROM interview_invalidation WHERE phone_num = '13800000001' OR extra_info = '北京海淀';");
 
         printTakeaways();
     }

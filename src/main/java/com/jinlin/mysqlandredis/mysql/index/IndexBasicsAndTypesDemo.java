@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 01: 索引是什么？有什么好处？索引分类与哈希索引场景深度解析
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/03_index_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注面试题核心逻辑剖析、执行计划深度讲解与运行时参数观测。
+ * 
  * 核心考点：
  * 1. 索引本质：排好序的高效查找与检索数据结构 (类比书本目录)。
  * 2. 优点：大幅减少磁盘 I/O 扫描行数、避免临时排序 Filesort、加速多表连接。
@@ -22,52 +25,19 @@ public class IndexBasicsAndTypesDemo {
         System.out.println("【索引模块 01】索引本质定义、逻辑与物理分类、哈希索引实机验证");
         System.out.println("====================================================================");
 
-        // 1. 初始化包含各类索引的演示表
-        String dropTable = "DROP TABLE IF EXISTS interview_idx_basics;";
-        String createTable = "CREATE TABLE interview_idx_basics ("
-                + "  id BIGINT NOT NULL AUTO_INCREMENT,"
-                + "  user_code VARCHAR(32) NOT NULL,"
-                + "  nickname VARCHAR(50) NOT NULL,"
-                + "  age INT NOT NULL,"
-                + "  dept_id INT NOT NULL,"
-                + "  bio TEXT,"
-                + "  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                + "  PRIMARY KEY (id),"
-                + "  UNIQUE KEY uk_user_code (user_code),"
-                + "  INDEX idx_nickname (nickname),"
-                + "  INDEX idx_dept_age (dept_id, age),"
-                + "  FULLTEXT KEY ft_bio (bio)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertData = "INSERT INTO interview_idx_basics (user_code, nickname, age, dept_id, bio) VALUES "
-                + "('U1001', '张三', 25, 10, '资深 Java 后端架构师，精通 MySQL 调优与底层原理'), "
-                + "('U1002', '李四', 30, 10, '分布式系统专家，熟悉高并发缓存与分库分表'), "
-                + "('U1003', '王五', 28, 20, '前端技术专家，擅长前端工程化与性能优化');";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
-
-        // 2. 观察主键点查的执行计划 (type = const, 速度最快)
+        // 1. 观测主键聚簇索引等值点查执行计划 (type = const, 速度最快, 直接命中叶子数据行)
         DbConnectionHelper.printQueryResults("主键聚簇索引等值点查执行计划 (type=const)", 
-                "EXPLAIN SELECT * FROM interview_idx_basics WHERE id = 1;");
+                "EXPLAIN SELECT * FROM interview_idx_user WHERE id = 1;");
 
-        // 3. 观察普通二级索引点查的执行计划 (type = ref)
+        // 2. 观测普通二级索引点查的执行计划 (type = ref, 走二级索引叶子获取主键并回表)
         DbConnectionHelper.printQueryResults("普通二级索引等值查询执行计划 (type=ref)", 
-                "EXPLAIN SELECT * FROM interview_idx_basics WHERE nickname = '张三';");
+                "EXPLAIN SELECT * FROM interview_idx_user WHERE user_name = '张三';");
 
-        // 4. 初始化哈希索引 (MEMORY 引擎) 并验证等值检索
-        String dropHash = "DROP TABLE IF EXISTS interview_idx_hash_memory;";
-        String createHash = "CREATE TABLE interview_idx_hash_memory ("
-                + "  session_id VARCHAR(64) NOT NULL,"
-                + "  user_id BIGINT NOT NULL,"
-                + "  PRIMARY KEY (session_id) USING HASH"
-                + ") ENGINE=MEMORY DEFAULT CHARSET=utf8mb4;";
-        String insertHash = "INSERT INTO interview_idx_hash_memory VALUES ('sess_token_abc123', 1001);";
-        DbConnectionHelper.executeSqlScript(dropHash, createHash, insertHash);
+        // 3. 观测 MEMORY 存储引擎中的原生哈希索引等值点查 (O(1) 精确匹配)
+        DbConnectionHelper.printQueryResults("哈希索引等值点查执行计划 (MEMORY 引擎 HASH 索引)", 
+                "EXPLAIN SELECT * FROM interview_hash_user WHERE token = 'token_aaa_111';");
 
-        DbConnectionHelper.printQueryResults("哈希索引等值点查执行计划", 
-                "EXPLAIN SELECT * FROM interview_idx_hash_memory WHERE session_id = 'sess_token_abc123';");
-
-        // 5. 查询 InnoDB 自适应哈希索引 (AHI) 参数状态
+        // 4. 查询 InnoDB 核心参数: 自适应哈希索引 (Adaptive Hash Index, AHI) 启用状态
         DbConnectionHelper.printQueryResults("InnoDB 自适应哈希索引 (Adaptive Hash Index) 启用状态", 
                 "SHOW VARIABLES LIKE 'innodb_adaptive_hash_index';");
 

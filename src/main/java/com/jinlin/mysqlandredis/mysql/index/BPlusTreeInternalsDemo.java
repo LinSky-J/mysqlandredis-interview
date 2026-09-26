@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 03: B+ 树底层实现、数据页内部查找、跳表对比与插入物理演变
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/03_index_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注面试题底层原理深度推演、B+ 树结构特性及引擎参数验证。
+ * 
  * 核心考点深度解析：
  * 1. B+ 树特性与叶子节点双向链表：
  *    - 非叶子节点仅存索引键与指针，扇出极高 (>1000)，树高通常只有 3~4 层，单表可撑两千多万数据；
@@ -37,22 +40,7 @@ public class BPlusTreeInternalsDemo {
         DbConnectionHelper.printQueryResults("InnoDB Change Buffer 缓冲策略", 
                 "SHOW VARIABLES LIKE 'innodb_change_buffering';");
 
-        // 3. 初始化测试表与数据
-        String dropTable = "DROP TABLE IF EXISTS interview_bplus_tree;";
-        String createTable = "CREATE TABLE interview_bplus_tree ("
-                + "  id BIGINT PRIMARY KEY AUTO_INCREMENT,"
-                + "  user_name VARCHAR(50) NOT NULL,"
-                + "  age INT NOT NULL,"
-                + "  INDEX idx_age (age)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertData = "INSERT INTO interview_bplus_tree (user_name, age) VALUES "
-                + "('User_01', 18), ('User_02', 20), ('User_03', 22), "
-                + "('User_04', 25), ('User_05', 28), ('User_06', 30);";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
-
-        // 4. 验证叶子节点双向链表的优势: 逆序遍历直接走双向链表，无需额外内存排序 (Extra 无 Using filesort)
+        // 3. 验证叶子节点双向链表的优势: 逆序遍历直接走双向链表，无需额外内存排序 (Extra 无 Using filesort)
         DbConnectionHelper.printQueryResults("逆序范围扫描执行计划 (利用双向链表 prev 指针，Extra 无 Using filesort)", 
                 "EXPLAIN SELECT age FROM interview_bplus_tree WHERE age >= 20 ORDER BY age DESC;");
 

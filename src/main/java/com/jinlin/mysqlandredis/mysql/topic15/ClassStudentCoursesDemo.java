@@ -20,42 +20,18 @@ public class ClassStudentCoursesDemo {
         System.out.println("【面试题 15】查指定班级下所有学生选课情况实机演示 (LEFT JOIN 避坑)");
         System.out.println("====================================================================");
 
-        // 1. 初始化班级、学生、课程、选课表
-        String dropSc = "DROP TABLE IF EXISTS interview_student_course;";
-        String dropCo = "DROP TABLE IF EXISTS interview_course;";
-        String dropSt = "DROP TABLE IF EXISTS interview_cls_student;";
-        String dropCl = "DROP TABLE IF EXISTS interview_class;";
-
-        String createCl = "CREATE TABLE interview_class ("
-                + "  class_id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  class_name VARCHAR(50) NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String createSt = "CREATE TABLE interview_cls_student ("
-                + "  student_id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  student_name VARCHAR(50) NOT NULL,"
-                + "  class_id INT NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String createCo = "CREATE TABLE interview_course ("
-                + "  course_id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  course_name VARCHAR(50) NOT NULL"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String createSc = "CREATE TABLE interview_student_course ("
-                + "  student_id INT NOT NULL,"
-                + "  course_id INT NOT NULL,"
-                + "  PRIMARY KEY (student_id, course_id)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        // 插入测试数据: 1班包含 3 位学生 (其中 3 号学生 王五 未选任何课程)
-        String insertData = "INSERT INTO interview_class (class_id, class_name) VALUES (1, '高三(1)班'), (2, '高三(2)班');\n"
-                + "INSERT INTO interview_cls_student (student_id, student_name, class_id) VALUES "
-                + "(1, '张三', 1), (2, '李四', 1), (3, '王五 (未选任何课程)', 1), (4, '赵六 (2班学生)', 2);\n"
-                + "INSERT INTO interview_course (course_id, course_name) VALUES (101, '高等数学'), (102, '大学物理'), (103, '大学英语');\n"
-                + "INSERT INTO interview_student_course (student_id, course_id) VALUES (1, 101), (1, 102), (2, 103);";
-
-        DbConnectionHelper.executeSqlScript(dropSc, dropCo, dropSt, dropCl, createCl, createSt, createCo, createSc, insertData);
+        // 1. 测试数据重置 (表结构已通过 DataGrip 执行 sql/01_mysql_basics_schema.sql 创建)
+        DbConnectionHelper.executeSqlScript(
+                "DELETE FROM interview_student_course;",
+                "DELETE FROM interview_course;",
+                "DELETE FROM interview_cls_student;",
+                "DELETE FROM interview_class;",
+                "INSERT INTO interview_class (class_id, class_name) VALUES (1, '高三(1)班'), (2, '高三(2)班');",
+                "INSERT INTO interview_cls_student (student_id, student_name, class_id) VALUES "
+                        + "(1, '张三', 1), (2, '李四', 1), (3, '王五 (未选任何课程)', 1), (4, '赵六 (2班学生)', 2);",
+                "INSERT INTO interview_course (course_id, course_name) VALUES (101, '高等数学'), (102, '大学物理'), (103, '大学英语');",
+                "INSERT INTO interview_student_course (student_id, course_id) VALUES (1, 101), (1, 102), (2, 103);"
+        );
 
         // 2. 查询形式 1: 平铺明细表
         String detailSql = "SELECT "

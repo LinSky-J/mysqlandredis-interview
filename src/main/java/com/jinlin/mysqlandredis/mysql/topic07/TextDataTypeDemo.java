@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 07: Text 数据类型可以无限大吗？
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/01_mysql_basics_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注 TEXT 数据类型容量边界、max_allowed_packet 约束与行溢出机制讲解。
+ * 
  * 核心考点：
  * 1. 容量限制：绝对不能无限大！分为 TINYTEXT(255B)、TEXT(64KB)、MEDIUMTEXT(16MB)、LONGTEXT(4GB)。
  * 2. 网络传输限制：受参数 max_allowed_packet 强约束，超过直接抛出 PacketTooBigException。
@@ -22,32 +25,13 @@ public class TextDataTypeDemo {
         DbConnectionHelper.printQueryResults("当前数据库网络包限制 (max_allowed_packet)", 
                 "SHOW VARIABLES LIKE 'max_allowed_packet';");
 
-        // 2. 初始化演示表
-        String dropTable = "DROP TABLE IF EXISTS interview_text_storage;";
-        String createTable = "CREATE TABLE interview_text_storage ("
-                + "  id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  short_notes TINYTEXT,"
-                + "  content TEXT,"
-                + "  article MEDIUMTEXT,"
-                + "  large_payload LONGTEXT"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertData = "INSERT INTO interview_text_storage (short_notes, content, article, large_payload) VALUES ("
-                + "'简要提示说明', "
-                + "REPEAT('TEXT内容-64KB上限-', 30), "
-                + "REPEAT('MEDIUMTEXT文章-16MB上限-', 80), "
-                + "REPEAT('LONGTEXT超长文本-4GB理论上限-', 200)"
-                + ");";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
-
-        // 3. 查询各字段实际字符长度
+        // 2. 查询各字段实际字符长度 (在预先由 DataGrip 创建好的 interview_text_storage 表中查询)
         String queryLengthSql = "SELECT "
                 + "  id, "
-                + "  CHAR_LENGTH(short_notes) AS len_tiny, "
-                + "  CHAR_LENGTH(content) AS len_text, "
-                + "  CHAR_LENGTH(article) AS len_medium, "
-                + "  CHAR_LENGTH(large_payload) AS len_long "
+                + "  CHAR_LENGTH(tiny_text) AS len_tiny, "
+                + "  CHAR_LENGTH(regular_text) AS len_text, "
+                + "  CHAR_LENGTH(medium_text) AS len_medium, "
+                + "  CHAR_LENGTH(long_text) AS len_long "
                 + "FROM interview_text_storage;";
 
         DbConnectionHelper.printQueryResults("各 TEXT 类型存储长度检测", queryLengthSql);

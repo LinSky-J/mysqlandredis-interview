@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 04: MySQL 如何避免重复插入数据？
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/01_mysql_basics_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注 4 种避免重复插入方案的物理执行差异与结果比对。
+ * 
  * 核心方案与机制对比：
  * 1. 唯一索引 (UNIQUE KEY)：底层约束防线，任何方案的前提。
  * 2. INSERT IGNORE INTO：冲突则跳过，无异常，受影响行数 0。
@@ -19,47 +22,31 @@ public class AvoidDuplicateInsertsDemo {
         System.out.println("【面试题 04】MySQL 避免重复插入的 4 种方案实机演示与对比");
         System.out.println("====================================================================");
 
-        // 1. 初始化表
-        String dropTable = "DROP TABLE IF EXISTS interview_duplicate_user;";
-        String createTable = "CREATE TABLE interview_duplicate_user ("
-                + "  id BIGINT PRIMARY KEY AUTO_INCREMENT,"
-                + "  phone VARCHAR(20) NOT NULL,"
-                + "  nickname VARCHAR(50) NOT NULL,"
-                + "  login_count INT NOT NULL DEFAULT 1,"
-                + "  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
-                + "  UNIQUE KEY uk_phone (phone)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        DbConnectionHelper.printQueryResults("初始数据状态", "SELECT id, id_card, username, score, login_count FROM interview_duplicate_user;");
 
-        // 插入初始数据: id=1, phone='13900001111', nickname='张三', count=1
-        String initData = "INSERT INTO interview_duplicate_user (phone, nickname, login_count) "
-                + "VALUES ('13900001111', '张三-初始', 1);";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, initData);
-        DbConnectionHelper.printQueryResults("初始数据状态", "SELECT id, phone, nickname, login_count FROM interview_duplicate_user;");
-
-        // 2. 方案一：INSERT IGNORE
-        String sqlIgnore = "INSERT IGNORE INTO interview_duplicate_user (phone, nickname, login_count) "
-                + "VALUES ('13900001111', '张三-尝试Ignore插入', 99);";
+        // 1. 方案一：INSERT IGNORE
+        String sqlIgnore = "INSERT IGNORE INTO interview_duplicate_user (id_card, username, score, login_count) "
+                + "VALUES ('110101199003072345', '张三-尝试Ignore插入', 99, 1);";
         DbConnectionHelper.executeSqlScript(sqlIgnore);
         DbConnectionHelper.printQueryResults("方案 1: INSERT IGNORE (遇到冲突直接忽略，数据保持不变)", 
-                "SELECT id, phone, nickname, login_count FROM interview_duplicate_user;");
+                "SELECT id, id_card, username, score, login_count FROM interview_duplicate_user;");
 
-        // 3. 方案二：REPLACE INTO
-        String sqlReplace = "REPLACE INTO interview_duplicate_user (phone, nickname, login_count) "
-                + "VALUES ('13900001111', '张三-已被Replace', 2);";
+        // 2. 方案二：REPLACE INTO
+        String sqlReplace = "REPLACE INTO interview_duplicate_user (id_card, username, score, login_count) "
+                + "VALUES ('110101199003072345', '张三-已被Replace', 85, 2);";
         DbConnectionHelper.executeSqlScript(sqlReplace);
         DbConnectionHelper.printQueryResults("方案 2: REPLACE INTO (先 DELETE 再 INSERT，注意主键 ID 变为 2！)", 
-                "SELECT id, phone, nickname, login_count FROM interview_duplicate_user;");
+                "SELECT id, id_card, username, score, login_count FROM interview_duplicate_user;");
 
-        // 4. 方案三：ON DUPLICATE KEY UPDATE (生产推荐)
-        String sqlOnDuplicate = "INSERT INTO interview_duplicate_user (phone, nickname, login_count) "
-                + "VALUES ('13900001111', '张三-优雅更新', 1) "
+        // 3. 方案三：ON DUPLICATE KEY UPDATE (生产推荐)
+        String sqlOnDuplicate = "INSERT INTO interview_duplicate_user (id_card, username, score, login_count) "
+                + "VALUES ('110101199003072345', '张三-优雅更新', 90, 1) "
                 + "ON DUPLICATE KEY UPDATE "
-                + "  nickname = VALUES(nickname), "
+                + "  username = VALUES(username), "
                 + "  login_count = login_count + 1;";
         DbConnectionHelper.executeSqlScript(sqlOnDuplicate);
-        DbConnectionHelper.printQueryResults("方案 3: ON DUPLICATE KEY UPDATE (保留主键 ID=2，原子更新 nickname 与 count)", 
-                "SELECT id, phone, nickname, login_count FROM interview_duplicate_user;");
+        DbConnectionHelper.printQueryResults("方案 3: ON DUPLICATE KEY UPDATE (保留主键 ID=2，原子更新 username 与 count)", 
+                "SELECT id, id_card, username, score, login_count FROM interview_duplicate_user;");
 
         printComparisonSummary();
     }

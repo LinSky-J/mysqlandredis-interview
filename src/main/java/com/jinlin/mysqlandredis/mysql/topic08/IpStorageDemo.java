@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 08: IP 地址如何在数据库里存储？
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/01_mysql_basics_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注 INT UNSIGNED 与 VARCHAR(15) 存储对比、网段范围检索与位移算法讲解。
+ * 
  * 核心考点：
  * 1. 为什么不用 VARCHAR(15)？
  *    - 占用空间大 (变长头+字符串高达 16 字节)；
@@ -46,47 +49,28 @@ public class IpStorageDemo {
         System.out.println("【面试题 08】IP 地址的高效存储方案 (INT UNSIGNED) 与网段检索实机演示");
         System.out.println("====================================================================");
 
-        // 1. 初始化表
-        String dropTable = "DROP TABLE IF EXISTS interview_ip_storage;";
-        String createTable = "CREATE TABLE interview_ip_storage ("
-                + "  id INT PRIMARY KEY AUTO_INCREMENT,"
-                + "  user_name VARCHAR(50) NOT NULL,"
-                + "  ip_varchar VARCHAR(15) NOT NULL,"
-                + "  ip_int INT UNSIGNED NOT NULL,"
-                + "  INDEX idx_ip_int (ip_int)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertData = "INSERT INTO interview_ip_storage (user_name, ip_varchar, ip_int) VALUES "
-                + "('用户A', '192.168.1.5',   INET_ATON('192.168.1.5')), "
-                + "('用户B', '192.168.1.10',  INET_ATON('192.168.1.10')), "
-                + "('用户C', '192.168.1.100', INET_ATON('192.168.1.100')), "
-                + "('用户D', '10.0.0.1',      INET_ATON('10.0.0.1'));";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
-
-        // 2. 查询并还原 IP
+        // 1. 查询并还原 IP
         String selectSql = "SELECT "
                 + "  id, "
-                + "  user_name, "
-                + "  ip_varchar, "
-                + "  ip_int, "
-                + "  INET_NTOA(ip_int) AS ip_restored "
+                + "  ip_string, "
+                + "  ip_numeric, "
+                + "  INET_NTOA(ip_numeric) AS ip_restored "
                 + "FROM interview_ip_storage;";
 
         DbConnectionHelper.printQueryResults("IP 存储与还原结果对比", selectSql);
 
-        // 3. 执行 IP 范围查询 (例如网段 192.168.1.1 ~ 192.168.1.20)
+        // 2. 执行 IP 范围查询 (例如网段 192.168.1.1 ~ 192.168.1.20)
         String rangeQuery = "SELECT "
                 + "  id, "
-                + "  user_name, "
-                + "  INET_NTOA(ip_int) AS ip_matched, "
-                + "  ip_int "
+                + "  ip_string, "
+                + "  INET_NTOA(ip_numeric) AS ip_matched, "
+                + "  ip_numeric "
                 + "FROM interview_ip_storage "
-                + "WHERE ip_int BETWEEN INET_ATON('192.168.1.1') AND INET_ATON('192.168.1.20');";
+                + "WHERE ip_numeric BETWEEN INET_ATON('192.168.1.1') AND INET_ATON('192.168.1.20');";
 
         DbConnectionHelper.printQueryResults("网段范围精确查询 (192.168.1.1 ~ 192.168.1.20)", rangeQuery);
 
-        // 4. 验证 Java 原生转换与 MySQL 转换结果一致
+        // 3. 验证 Java 原生转换与 MySQL 转换结果一致
         String testIp = "192.168.1.10";
         long converted = ipToLong(testIp);
         String restored = longToIp(converted);

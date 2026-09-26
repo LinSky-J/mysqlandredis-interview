@@ -5,6 +5,9 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 /**
  * 问题 04: 联合索引原理、最左前缀、范围查询失效与索引下推 (ICP)
  * 
+ * 说明：数据表结构及初始化数据已移至 /sql/03_index_schema.sql 统一由 DataGrip 预先创建维护，
+ *       本 Java 类专注面试题核心逻辑剖析、最左匹配原则与索引下推 (ICP) 执行计划验证。
+ * 
  * 核心考点深度解析：
  * 1. 联合索引 (a, b, c) 物理实现：
  *    - 严格先按 a 升序；a 相同再按 b 升序；b 相同再按 c 升序。
@@ -25,24 +28,6 @@ public class CompositeIndexAndIcpDemo {
         System.out.println("====================================================================");
         System.out.println("【索引模块 04】联合索引最左匹配原则、索引下推 (ICP) 实机执行计划验证");
         System.out.println("====================================================================");
-
-        // 1. 初始化包含单列与联合索引的数据表
-        String dropTable = "DROP TABLE IF EXISTS interview_composite_idx;";
-        String createTable = "CREATE TABLE interview_composite_idx ("
-                + "  id BIGINT PRIMARY KEY AUTO_INCREMENT,"
-                + "  a INT NOT NULL,"
-                + "  b INT NOT NULL,"
-                + "  c INT NOT NULL,"
-                + "  extra_info VARCHAR(100) NOT NULL,"
-                + "  INDEX idx_single_a (a),"
-                + "  INDEX idx_composite_abc (a, b, c)"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-        String insertData = "INSERT INTO interview_composite_idx (a, b, c, extra_info) VALUES "
-                + "(1, 10, 100, 'Info-1'), (1, 20, 200, 'Info-2'), "
-                + "(2, 10, 100, 'Info-3'), (2, 30, 300, 'Info-4'), (3, 40, 400, 'Info-5');";
-
-        DbConnectionHelper.executeSqlScript(dropTable, createTable, insertData);
 
         // 场景 1: WHERE b > 10 AND a = 1 (验证优化器自动重排顺序命中联合索引)
         DbConnectionHelper.printQueryResults("【场景 1】WHERE b > 10 AND a = 1 (优化器自动颠倒顺序命中联合索引)", 
