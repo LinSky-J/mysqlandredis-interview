@@ -144,10 +144,13 @@ public class RedisConnectionHelper {
     }
 
     /**
-     * 保留旧版 Lettuce 同步命令接口 (兼容性用途)
+     * 获取 Lettuce 同步命令接口 (用于执行原生底层高级命令，如 objectIdletime, memoryUsage)
      */
-    @Deprecated
     public static RedisCommands<String, String> getCommands() {
+        return syncCommands;
+    }
+
+    public static RedisCommands<String, String> getSyncCommands() {
         return syncCommands;
     }
 

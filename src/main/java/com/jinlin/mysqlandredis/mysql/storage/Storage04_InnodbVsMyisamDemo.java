@@ -58,7 +58,7 @@ public class Storage04_InnodbVsMyisamDemo {
     private static void printComparisonMatrix() {
         System.out.println("---------------- InnoDB 与 MyISAM 终极对比矩阵 ----------------");
         System.out.printf("%-18s | %-32s | %-32s\n", "比较维度", "InnoDB", "MyISAM");
-        System.out.println("-".repeat(88));
+        System.out.println("----------------------------------------------------------------------------------------");
         System.out.printf("%-18s | %-32s | %-32s\n", "事务支持", "完整支持 ACID (COMMIT/ROLLBACK)", "完全不支持任何事务");
         System.out.printf("%-18s | %-32s | %-32s\n", "锁粒度", "行级锁、间隙锁、Next-Key Lock", "仅支持全表锁 (Table Lock)");
         System.out.printf("%-18s | %-32s | %-32s\n", "崩溃安全 (Crash-Safe)", "Redo Log + 2PC 自动恢复，零丢数据", "断电极易索引损坏，需 myisamchk");
