@@ -1,21 +1,6 @@
 package com.jinlin.mysqlandredis.mysql;
 
-import com.jinlin.mysqlandredis.mysql.topic01.Topic01_NoSqlVsSqlExplanation;
-import com.jinlin.mysqlandredis.mysql.topic02.Topic02_ThreeNormalFormsExplanation;
-import com.jinlin.mysqlandredis.mysql.topic03.Topic03_TableJoinsDemo;
-import com.jinlin.mysqlandredis.mysql.topic04.Topic04_AvoidDuplicateInsertsDemo;
-import com.jinlin.mysqlandredis.mysql.topic05.Topic05_CharVsVarcharDemo;
-import com.jinlin.mysqlandredis.mysql.topic06.Topic06_IntDisplayWidthDemo;
-import com.jinlin.mysqlandredis.mysql.topic07.Topic07_TextDataTypeDemo;
-import com.jinlin.mysqlandredis.mysql.topic08.Topic08_IpStorageDemo;
-import com.jinlin.mysqlandredis.mysql.topic09.Topic09_ForeignKeyConstraintsDemo;
-import com.jinlin.mysqlandredis.mysql.topic10.Topic10_InVsExistsDemo;
-import com.jinlin.mysqlandredis.mysql.topic11.Topic11_BasicFunctionsDemo;
-import com.jinlin.mysqlandredis.mysql.topic12.Topic12_SqlExecutionOrderExplanation;
-import com.jinlin.mysqlandredis.mysql.topic13.Topic13_CourseSelectionFilterDemo;
-import com.jinlin.mysqlandredis.mysql.topic14.Topic14_StudentScoreRankingDemo;
-import com.jinlin.mysqlandredis.mysql.topic15.Topic15_ClassStudentCoursesDemo;
-import com.jinlin.mysqlandredis.mysql.topic16.Topic16_MySqlReentrantLockDemo;
+import com.jinlin.mysqlandredis.mysql.sqlbase.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

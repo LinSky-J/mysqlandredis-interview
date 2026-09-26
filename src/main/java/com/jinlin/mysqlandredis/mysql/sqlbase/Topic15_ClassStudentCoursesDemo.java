@@ -1,4 +1,4 @@
-package com.jinlin.mysqlandredis.mysql.topic15;
+package com.jinlin.mysqlandredis.mysql.sqlbase;
 
 import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 
@@ -71,3 +71,4 @@ public class Topic15_ClassStudentCoursesDemo {
         runDemo();
     }
 }
+

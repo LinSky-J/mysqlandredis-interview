@@ -1,4 +1,4 @@
-package com.jinlin.mysqlandredis.mysql.topic01;
+package com.jinlin.mysqlandredis.mysql.sqlbase;
 
 import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 
@@ -52,3 +52,4 @@ public class Topic01_NoSqlVsSqlExplanation {
         runDemo();
     }
 }
+

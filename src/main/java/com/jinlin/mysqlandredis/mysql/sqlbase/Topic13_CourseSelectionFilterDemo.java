@@ -1,4 +1,4 @@
-package com.jinlin.mysqlandredis.mysql.topic13;
+package com.jinlin.mysqlandredis.mysql.sqlbase;
 
 import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 
@@ -89,3 +89,4 @@ public class Topic13_CourseSelectionFilterDemo {
         runDemo();
     }
 }
+

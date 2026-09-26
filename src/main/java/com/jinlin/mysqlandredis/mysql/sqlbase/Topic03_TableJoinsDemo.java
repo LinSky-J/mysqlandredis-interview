@@ -1,4 +1,4 @@
-package com.jinlin.mysqlandredis.mysql.topic03;
+package com.jinlin.mysqlandredis.mysql.sqlbase;
 
 import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 
@@ -68,3 +68,4 @@ public class Topic03_TableJoinsDemo {
         runDemo();
     }
 }
+

@@ -1,4 +1,4 @@
-package com.jinlin.mysqlandredis.mysql.topic16;
+package com.jinlin.mysqlandredis.mysql.sqlbase;
 
 import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 import java.sql.Connection;
@@ -182,3 +182,4 @@ public class Topic16_MySqlReentrantLock {
         return lockOwner;
     }
 }
+

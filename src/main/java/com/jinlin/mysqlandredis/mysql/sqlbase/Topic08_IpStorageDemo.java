@@ -1,4 +1,4 @@
-package com.jinlin.mysqlandredis.mysql.topic08;
+package com.jinlin.mysqlandredis.mysql.sqlbase;
 
 import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 
@@ -82,3 +82,4 @@ public class Topic08_IpStorageDemo {
         runDemo();
     }
 }
+

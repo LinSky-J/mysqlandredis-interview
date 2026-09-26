@@ -1,4 +1,4 @@
-package com.jinlin.mysqlandredis.mysql.topic09;
+package com.jinlin.mysqlandredis.mysql.sqlbase;
 
 import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
 import java.sql.Connection;
@@ -69,3 +69,4 @@ public class Topic09_ForeignKeyConstraintsDemo {
         runDemo();
     }
 }
+
