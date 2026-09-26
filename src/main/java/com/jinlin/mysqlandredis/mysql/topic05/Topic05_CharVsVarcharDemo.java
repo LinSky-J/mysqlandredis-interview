@@ -14,7 +14,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 3. 字符还是字节？自 MySQL 4.1 开始，VARCHAR(N) 中的 N 明确表示【字符数 (Characters)】，非字节数。
  *    在 utf8mb4 下，1 个汉字占用 3~4 字节，VARCHAR(10) 最多可容纳 10 个汉字 (占用 30~40 字节)。
  */
-public class CharVsVarcharDemo {
+public class Topic05_CharVsVarcharDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

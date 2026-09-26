@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
  * 1. 测试单线程多次重入与逐层释放。
  * 2. 测试多线程并发互斥竞争与超时保护。
  */
-public class MySqlReentrantLockDemo {
+public class Topic16_MySqlReentrantLockDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");
@@ -19,13 +19,13 @@ public class MySqlReentrantLockDemo {
         System.out.println("====================================================================");
 
         // 1. 初始化锁表
-        MySqlReentrantLock.initLockTable();
+        Topic16_MySqlReentrantLock.initLockTable();
 
         String testLockName = "interview_resource_lock";
 
         // 2. 测试一: 单线程多次重入测试
         System.out.println(">>> [测试 1] 单线程多层重入验证:");
-        MySqlReentrantLock lock = new MySqlReentrantLock(testLockName, 10000); // 10秒超时
+        Topic16_MySqlReentrantLock lock = new Topic16_MySqlReentrantLock(testLockName, 10000); // 10秒超时
         try {
             System.out.println("1. 第一次获取锁...");
             boolean firstAcquire = lock.tryLock(1, TimeUnit.SECONDS);
@@ -58,7 +58,7 @@ public class MySqlReentrantLockDemo {
         CountDownLatch latch = new CountDownLatch(2);
 
         Thread threadA = new Thread(() -> {
-            MySqlReentrantLock lockA = new MySqlReentrantLock(testLockName, 5000);
+            Topic16_MySqlReentrantLock lockA = new Topic16_MySqlReentrantLock(testLockName, 5000);
             try {
                 System.out.println("[线程 A] 正在尝试获取锁...");
                 if (lockA.tryLock(2, TimeUnit.SECONDS)) {
@@ -78,7 +78,7 @@ public class MySqlReentrantLockDemo {
             try {
                 // 确保线程 A 先抢到锁
                 Thread.sleep(200);
-                MySqlReentrantLock lockB = new MySqlReentrantLock(testLockName, 5000);
+                Topic16_MySqlReentrantLock lockB = new Topic16_MySqlReentrantLock(testLockName, 5000);
                 System.out.println("[线程 B] 尝试获取同一把锁 (等待超时时间设为 500ms，预期获取失败)...");
                 boolean acquired = lockB.tryLock(500, TimeUnit.MILLISECONDS);
                 System.out.println("[线程 B] 第一次抢锁结果 (预期 false): " + acquired);

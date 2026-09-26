@@ -11,7 +11,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 2. 传统分页：ORDER BY total_score DESC LIMIT 4, 6 (跳过前 4 名，取 6 条对应 5~10 名)。
  * 3. 窗口函数 (MySQL 8.0+)：DENSE_RANK() OVER (ORDER BY total_score DESC)，优雅支持并列分处理。
  */
-public class StudentScoreRankingDemo {
+public class Topic14_StudentScoreRankingDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

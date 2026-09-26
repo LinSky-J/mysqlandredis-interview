@@ -14,7 +14,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - 为什么 ORDER BY 可以用 SELECT 别名？(ORDER BY 执行在 SELECT 之后)
  *    - 为什么 WHERE 不能直接使用 SUM/COUNT 等聚合函数？(WHERE 先于 GROUP BY 过滤行，此时聚合尚未发生)
  */
-public class SqlExecutionOrderExplanation {
+public class Topic12_SqlExecutionOrderExplanation {
 
     public static void runDemo() {
         System.out.println("====================================================================");

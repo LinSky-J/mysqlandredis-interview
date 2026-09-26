@@ -11,7 +11,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 3. 解法 2 (IN / NOT IN)：最符合直觉，但需警惕子查询 NULL 值陷阱。
  * 4. 解法 3 (GROUP BY + HAVING SUM(CASE...))：行转列条件聚合的高级技巧。
  */
-public class CourseSelectionFilterDemo {
+public class Topic13_CourseSelectionFilterDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

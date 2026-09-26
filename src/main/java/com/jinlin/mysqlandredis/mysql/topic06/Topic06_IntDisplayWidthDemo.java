@@ -14,7 +14,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 3. 括号中的 M：仅表示【显示宽度 (Display Width)】，只有配合 ZEROFILL 时才会在数值不足 M 位时高位补 0。
  * 4. 演进趋势：MySQL 8.0.17 起已弃用整型显示宽度语法，建议统一声明为 INT。
  */
-public class IntDisplayWidthDemo {
+public class Topic06_IntDisplayWidthDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

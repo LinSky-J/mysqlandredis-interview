@@ -13,7 +13,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - 当子查询结果包含 NULL 时，NOT IN 会因为 `col != NULL` 永远判定为 UNKNOWN，导致整条查询返回 0 行！
  *    - NOT EXISTS 评估子查询的行存在性，不受字段是否为 NULL 影响，逻辑永远正确。
  */
-public class InVsExistsDemo {
+public class Topic10_InVsExistsDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

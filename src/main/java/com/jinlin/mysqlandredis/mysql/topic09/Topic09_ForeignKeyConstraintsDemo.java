@@ -18,7 +18,7 @@ import java.sql.SQLException;
  *    - 分布式分库分表与微服务场景彻底失效；
  *    - 历史冷数据归档清洗难以处理。
  */
-public class ForeignKeyConstraintsDemo {
+public class Topic09_ForeignKeyConstraintsDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

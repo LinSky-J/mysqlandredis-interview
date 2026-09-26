@@ -22,7 +22,7 @@ import java.sql.SQLException;
  *    - MyISAM 在表头元数据记录了总行数，无 WHERE 条件时读取复杂度为 O(1)。
  *    - InnoDB 受 MVCC 多版本并发可见性影响，必须通过遍历索引逐行统计 O(N)。
  */
-public class InnodbVsMyisamDemo {
+public class Storage04_InnodbVsMyisamDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

@@ -29,7 +29,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *      ⑥ 事务提交，将 Redo Log 置为 Commit 状态；
  *      ⑦ Page Cleaner 线程异步将脏页刷新至物理数据文件 (.ibd)。
  */
-public class SqlExecutionLifecycleDemo {
+public class Storage01_SqlExecutionLifecycleDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

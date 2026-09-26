@@ -13,7 +13,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - 形式 A：多行展开明细。
  *    - 形式 B：GROUP_CONCAT 聚合合并选课名称，并用 COUNT(co.course_id) 准确计算选课门数。
  */
-public class ClassStudentCoursesDemo {
+public class Topic15_ClassStudentCoursesDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

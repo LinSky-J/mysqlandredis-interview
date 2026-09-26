@@ -14,7 +14,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 3. 第三范式 (3NF)：在 2NF 基础上，消除非主属性对主键的【传递函数依赖】(A -> B -> C)。
  * 4. 反范式化 (Denormalization)：用空间换时间、冗余快照、减少高并发下的关联 JOIN。
  */
-public class ThreeNormalFormsExplanation {
+public class Topic02_ThreeNormalFormsExplanation {
 
     public static void runDemo() {
         System.out.println("====================================================================");

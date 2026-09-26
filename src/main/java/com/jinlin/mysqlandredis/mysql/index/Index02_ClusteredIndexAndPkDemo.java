@@ -21,7 +21,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - 语法上可以，业务上坚决不建！
  *    - 区分度仅约 50%，优化器计算发现通过索引逐条回表的随机 I/O 成本远超全表顺序扫描，最终弃用索引，徒增写开销。
  */
-public class ClusteredIndexAndPkDemo {
+public class Index02_ClusteredIndexAndPkDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

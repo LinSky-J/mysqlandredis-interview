@@ -25,7 +25,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - 页满分裂：分配新 16KB 页，将约 50% 记录迁移，维护双向链表与非叶子父节点指针；
  *    - Change Buffer：若非唯一二级索引不在内存，写入 Change Buffer 暂存，避免同步磁盘 I/O。
  */
-public class BPlusTreeInternalsDemo {
+public class Index03_BPlusTreeInternalsDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

@@ -18,7 +18,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - 数据结构：B+ 树索引 (默认)、哈希索引 (MEMORY 引擎支持)、空间 R-Tree。
  * 5. 哈希索引适用场景：纯等值精确点查 (O(1))；局限是绝不支持范围查询、排序和最左前缀匹配。
  */
-public class IndexBasicsAndTypesDemo {
+public class Index01_IndexBasicsAndTypesDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

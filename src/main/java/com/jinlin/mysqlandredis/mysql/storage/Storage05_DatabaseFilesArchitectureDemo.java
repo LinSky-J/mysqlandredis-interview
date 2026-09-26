@@ -29,7 +29,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 5. 进程与控制配置文件:
  *    - my.ini / my.cnf (配置文件)、hostname.pid (进程ID文件)、mysql.sock (套接字文件)。
  */
-public class DatabaseFilesArchitectureDemo {
+public class Storage05_DatabaseFilesArchitectureDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

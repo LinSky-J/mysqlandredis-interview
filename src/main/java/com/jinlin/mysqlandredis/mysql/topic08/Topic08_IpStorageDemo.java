@@ -19,7 +19,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - MySQL: INET_ATON(ipStr) / INET_NTOA(ipNum)；
  *    - Java: 基于位移运算相互转换。
  */
-public class IpStorageDemo {
+public class Topic08_IpStorageDemo {
 
     /**
      * Java 算法：点分十进制 IPv4 转 32位无符号 long

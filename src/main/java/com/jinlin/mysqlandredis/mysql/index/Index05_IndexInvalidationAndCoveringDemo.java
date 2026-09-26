@@ -21,7 +21,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - !=、<>、NOT IN；
  *    - 数据倾斜：当匹配结果集超过整表 20%~30% 时，优化器评估回表成本过高，直接放弃索引走全表扫描 (ALL)。
  */
-public class IndexInvalidationAndCoveringDemo {
+public class Index05_IndexInvalidationAndCoveringDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

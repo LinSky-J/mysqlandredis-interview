@@ -22,7 +22,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - Q4: 一个列既是单列索引又是联合索引，单独查它走哪个？
  *      A: 优化器基于成本 (CBO) 评估索引树体积，通常倾向于选择单列索引 (其叶子体积更小，I/O 成本更低)。但工程实践中建议清理单列冗余索引。
  */
-public class CompositeIndexAndIcpDemo {
+public class Index04_CompositeIndexAndIcpDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

@@ -17,13 +17,13 @@ import java.util.concurrent.TimeUnit;
  * 3. 释放安全性：只有 lock_owner 匹配才能扣减计数，减至 0 时执行 DELETE。
  * 4. 防死锁容灾：维护 expire_time 毫秒时间戳。若进程崩溃未释放，超时后允许其他线程 CAS 抢占。
  */
-public class MySqlReentrantLock {
+public class Topic16_MySqlReentrantLock {
 
     private final String lockName;
     private final String lockOwner;
     private final long lockTtlMs;
 
-    public MySqlReentrantLock(String lockName, long lockTtlMs) {
+    public Topic16_MySqlReentrantLock(String lockName, long lockTtlMs) {
         this.lockName = lockName;
         this.lockTtlMs = lockTtlMs;
         // 生成具有唯一标识的 owner: 实例 UUID + 线程 ID

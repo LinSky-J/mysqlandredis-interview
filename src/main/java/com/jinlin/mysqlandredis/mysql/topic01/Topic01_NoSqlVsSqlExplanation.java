@@ -14,7 +14,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 3. 扩展能力：SQL 纵向提升单机硬件(Scale-up)；NoSQL 线性横向分片(Scale-out)。
  * 4. 查询与复杂关联：SQL 支持多表 JOIN、嵌套子查询与聚合；NoSQL 缺乏跨集合 JOIN，偏好嵌套冗余。
  */
-public class NoSqlVsSqlExplanation {
+public class Topic01_NoSqlVsSqlExplanation {
 
     public static void runDemo() {
         System.out.println("====================================================================");

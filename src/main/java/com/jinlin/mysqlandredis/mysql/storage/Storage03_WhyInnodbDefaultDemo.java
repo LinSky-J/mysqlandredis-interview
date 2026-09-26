@@ -21,7 +21,7 @@ import java.sql.SQLException;
  *    ⑤ 统一 Buffer Pool 缓存：统一管理数据页与索引页，淘汰算法优异。
  *    ⑥ 聚簇索引 (Clustered Index)：主键点查 1 次寻道即可命中全部列。
  */
-public class WhyInnodbDefaultDemo {
+public class Storage03_WhyInnodbDefaultDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

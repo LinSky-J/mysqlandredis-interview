@@ -25,7 +25,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - 二星：索引物理排序与 ORDER BY 一致 (消除 Filesort)；
  *    - 三星：索引覆盖全部查询列 (达成 Covering Index 零回表)。
  */
-public class PrefixIndexAndOptimizationDemo {
+public class Index06_PrefixIndexAndOptimizationDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

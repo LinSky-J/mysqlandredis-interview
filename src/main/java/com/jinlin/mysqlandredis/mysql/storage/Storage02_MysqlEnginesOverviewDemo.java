@@ -17,7 +17,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - ARCHIVE: 仅支持 INSERT+SELECT、超高 zlib 压缩比。海量日志审计。
  *    - CSV: 逗号分隔文本存储，方便异构系统数据流转。
  */
-public class MysqlEnginesOverviewDemo {
+public class Storage02_MysqlEnginesOverviewDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

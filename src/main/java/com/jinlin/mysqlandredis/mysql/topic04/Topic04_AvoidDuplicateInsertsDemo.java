@@ -15,7 +15,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 4. INSERT INTO ... ON DUPLICATE KEY UPDATE：冲突则转为 UPDATE，保留原 ID，企业开发首选。
  * 5. 条件插入：INSERT INTO ... SELECT ... WHERE NOT EXISTS (...)。
  */
-public class AvoidDuplicateInsertsDemo {
+public class Topic04_AvoidDuplicateInsertsDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

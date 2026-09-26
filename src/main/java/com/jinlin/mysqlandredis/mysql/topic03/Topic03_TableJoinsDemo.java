@@ -17,7 +17,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  *    - Hash Join: MySQL 8.0+ 默认启用替代 BNLJ，在驱动表上构建内存哈希表探测。
  * 4. 优化法则：“小表驱动大表” (过滤后结果集较小的表作为驱动表)。
  */
-public class TableJoinsDemo {
+public class Topic03_TableJoinsDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

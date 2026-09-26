@@ -14,7 +14,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 3. 底层存储机制：InnoDB 默认页大小为 16KB，超过阈值会触发行溢出 (Off-page storage)，大字段分散在溢出页链表中。
  * 4. 查询性能黑洞：TEXT 字段无法被 MEMORY 存储引擎在内存临时表中高效排序，强制退化为磁盘临时表 (Disk Temp Table)。
  */
-public class TextDataTypeDemo {
+public class Topic07_TextDataTypeDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");

@@ -13,7 +13,7 @@ import com.jinlin.mysqlandredis.mysql.util.DbConnectionHelper;
  * 5. 聚合函数：COUNT, SUM, AVG, MAX, MIN, GROUP_CONCAT
  * 6. 窗口函数 (MySQL 8.0+)：ROW_NUMBER, RANK, DENSE_RANK
  */
-public class BasicFunctionsDemo {
+public class Topic11_BasicFunctionsDemo {
 
     public static void runDemo() {
         System.out.println("====================================================================");
