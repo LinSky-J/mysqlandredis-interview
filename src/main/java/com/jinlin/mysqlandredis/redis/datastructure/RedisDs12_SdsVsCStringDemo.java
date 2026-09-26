@@ -51,17 +51,23 @@ public class RedisDs12_SdsVsCStringDemo {
         String sdsKey = "demo:sds:binary_safe";
         // 构造一个内部包含控制字符与 \0 的复杂二进制字符串
         String rawBinaryData = "Hello\u0000Redis\u0000World\uffffEnd";
+        // Redis 原生指令: SET demo:sds:binary_safe "Hello\0Redis\0World\uffffEnd"
         redisTemplate.opsForValue().set(sdsKey, rawBinaryData);
 
+        // Redis 原生指令: GET demo:sds:binary_safe
         String fetchedData = redisTemplate.opsForValue().get(sdsKey);
+        // Redis 原生指令: STRLEN demo:sds:binary_safe
         Long strlen = redisTemplate.opsForValue().size(sdsKey);
         System.out.println("  -> 成功存取包含 '\\0' 空字符的二进制内容: " + fetchedData);
         System.out.println("  -> SDS 执行 STRLEN (RedisTemplate.opsForValue().size) 耗时为 O(1)，返回精确字节数: " + strlen);
 
         // 2. 实机演示 SDS 的动态追加扩容 (APPEND -> opsForValue.append)
         System.out.println("\n[步骤 2] 演示 SDS 的动态追加扩容 (杜绝缓冲区溢出并触发空间预分配)：");
+        // Redis 原生指令: SET demo:sds:append Redis
         redisTemplate.opsForValue().set("demo:sds:append", "Redis");
+        // Redis 原生指令: APPEND demo:sds:append " is very fast!"
         redisTemplate.opsForValue().append("demo:sds:append", " is very fast!");
+        // Redis 原生指令: GET demo:sds:append
         System.out.println("  -> 动态追加后内容: " + redisTemplate.opsForValue().get("demo:sds:append"));
         System.out.println("  -> 底层 SDS 自动执行空间预分配 (alloc > len)，避免下一次追加再次触发 malloc。");
 

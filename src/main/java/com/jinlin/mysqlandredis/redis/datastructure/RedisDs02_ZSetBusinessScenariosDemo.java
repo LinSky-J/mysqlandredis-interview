@@ -46,18 +46,25 @@ public class RedisDs02_ZSetBusinessScenariosDemo {
         // 1. 实机演练场景 1: 实时热搜排行榜 (基于 RedisTemplate.opsForZSet)
         System.out.println("[场景 1] 游戏战力 / 热搜排行榜实操 (基于 RedisTemplate.opsForZSet)：");
         String rankKey = "demo:zset:leaderboard";
+        // Redis 原生指令: DEL demo:zset:leaderboard
         redisTemplate.delete(rankKey);
 
         // 录入初始榜单 (opsForZSet.add)
+        // Redis 原生指令: ZADD demo:zset:leaderboard 8500.0 Player_Zhang
         redisTemplate.opsForZSet().add(rankKey, "Player_Zhang", 8500.0);
+        // Redis 原生指令: ZADD demo:zset:leaderboard 9200.0 Player_Wang
         redisTemplate.opsForZSet().add(rankKey, "Player_Wang", 9200.0);
+        // Redis 原生指令: ZADD demo:zset:leaderboard 7600.0 Player_Li
         redisTemplate.opsForZSet().add(rankKey, "Player_Li", 7600.0);
+        // Redis 原生指令: ZADD demo:zset:leaderboard 9800.0 Player_Zhao
         redisTemplate.opsForZSet().add(rankKey, "Player_Zhao", 9800.0);
 
         // 动态提升玩家分数 (opsForZSet.incrementScore 即 ZINCRBY)
+        // Redis 原生指令: ZINCRBY demo:zset:leaderboard 1000.0 Player_Zhang
         redisTemplate.opsForZSet().incrementScore(rankKey, "Player_Zhang", 1000.0); // 8500 + 1000 = 9500
 
         // 打印全服前三名 (opsForZSet.reverseRangeWithScores 即 ZREVRANGE WITHSCORES)
+        // Redis 原生指令: ZREVRANGE demo:zset:leaderboard 0 2 WITHSCORES
         Set<ZSetOperations.TypedTuple<String>> top3 = redisTemplate.opsForZSet().reverseRangeWithScores(rankKey, 0, 2);
         System.out.println("  -> [Top 3 排行榜结果]:");
         int rank = 1;
@@ -68,26 +75,34 @@ public class RedisDs02_ZSetBusinessScenariosDemo {
         }
 
         // 查询特定用户的排名与分数 (opsForZSet.reverseRank 与 score)
+        // Redis 原生指令: ZREVRANK demo:zset:leaderboard Player_Zhang
         Long playerRank = redisTemplate.opsForZSet().reverseRank(rankKey, "Player_Zhang");
+        // Redis 原生指令: ZSCORE demo:zset:leaderboard Player_Zhang
         Double playerScore = redisTemplate.opsForZSet().score(rankKey, "Player_Zhang");
         System.out.println("  -> 玩家 Player_Zhang 实时全服排名: 第 " + ((playerRank != null ? playerRank : 0) + 1) + " 名 (0-based: " + playerRank + "), 分数: " + playerScore);
 
         // 2. 实机演练场景 2: 订单超时延迟队列模型 (opsForZSet.rangeByScore)
         System.out.println("\n[场景 2] 订单超时未支付自动取消延迟队列模拟 (opsForZSet.rangeByScore)：");
         String delayQueueKey = "demo:zset:delay_queue";
+        // Redis 原生指令: DEL demo:zset:delay_queue
         redisTemplate.delete(delayQueueKey);
 
         long now = System.currentTimeMillis();
         // 模拟放入三个订单，到期时间戳分别为：过去(已到期)、现在、未来(未到期)
+        // Redis 原生指令: ZADD demo:zset:delay_queue <now-5000> ORDER_EXPIRED_001
         redisTemplate.opsForZSet().add(delayQueueKey, "ORDER_EXPIRED_001", (double) (now - 5000));
+        // Redis 原生指令: ZADD demo:zset:delay_queue <now-1000> ORDER_EXPIRED_002
         redisTemplate.opsForZSet().add(delayQueueKey, "ORDER_EXPIRED_002", (double) (now - 1000));
+        // Redis 原生指令: ZADD demo:zset:delay_queue <now+60000> ORDER_FUTURE_003
         redisTemplate.opsForZSet().add(delayQueueKey, "ORDER_FUTURE_003", (double) (now + 60000));
 
         // 捞取已到期的订单 (score <= now)
+        // Redis 原生指令: ZRANGEBYSCORE demo:zset:delay_queue 0 <now>
         Set<String> expiredOrders = redisTemplate.opsForZSet().rangeByScore(delayQueueKey, 0.0, (double) now);
         System.out.println("  -> 当前时间截点捞出已超时的订单: " + expiredOrders);
         if (expiredOrders != null) {
             for (String orderId : expiredOrders) {
+                // Redis 原生指令: ZREM demo:zset:delay_queue <orderId>
                 redisTemplate.opsForZSet().remove(delayQueueKey, orderId);
                 System.out.println("     [任务执行] 成功原子抢占并消费超时订单: " + orderId + " -> 触发取消订单释放库存逻辑");
             }

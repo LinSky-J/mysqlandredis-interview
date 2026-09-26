@@ -38,14 +38,21 @@ public class RedisDs05_SkiplistStructureAndSearchDemo {
         StringRedisTemplate redisTemplate = RedisConnectionHelper.getStringRedisTemplate();
 
         String skipKey = "demo:skiplist:simulation";
+        // Redis 原生指令: DEL demo:skiplist:simulation
         redisTemplate.delete(skipKey);
 
         // 写入具备清晰分值阶梯的数据 (opsForZSet.add)
+        // Redis 原生指令: ZADD demo:skiplist:simulation 10.0 Node_10
         redisTemplate.opsForZSet().add(skipKey, "Node_10", 10.0);
+        // Redis 原生指令: ZADD demo:skiplist:simulation 25.0 Node_25
         redisTemplate.opsForZSet().add(skipKey, "Node_25", 25.0);
+        // Redis 原生指令: ZADD demo:skiplist:simulation 40.0 Node_40
         redisTemplate.opsForZSet().add(skipKey, "Node_40", 40.0);
+        // Redis 原生指令: ZADD demo:skiplist:simulation 55.0 Node_55
         redisTemplate.opsForZSet().add(skipKey, "Node_55", 55.0);
+        // Redis 原生指令: ZADD demo:skiplist:simulation 70.0 Node_70
         redisTemplate.opsForZSet().add(skipKey, "Node_70", 70.0);
+        // Redis 原生指令: ZADD demo:skiplist:simulation 85.0 Node_85
         redisTemplate.opsForZSet().add(skipKey, "Node_85", 85.0);
 
         System.out.println("[步骤 1] 模拟跳表底层自顶向下的查找路径与 Span 累加计算全局 Rank：");
@@ -58,6 +65,7 @@ public class RedisDs05_SkiplistStructureAndSearchDemo {
         System.out.println("  - 结论: 经历极少次跨越，直接精确定位目标，并且累加的 Span=4 即为该元素在底层升序中的排名！");
 
         // 验证 RedisTemplate opsForZSet().rank 执行结果
+        // Redis 原生指令: ZRANK demo:skiplist:simulation Node_55
         Long rank = redisTemplate.opsForZSet().rank(skipKey, "Node_55");
         System.out.println("  -> 本地 Redis 执行 ZRANK (opsForZSet().rank) 返回的 0-based 排名: " + rank + " (对应累计跨度 4 个节点)");
 

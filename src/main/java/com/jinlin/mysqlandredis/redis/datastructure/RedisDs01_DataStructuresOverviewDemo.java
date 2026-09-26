@@ -40,30 +40,43 @@ public class RedisDs01_DataStructuresOverviewDemo {
         System.out.println("[步骤 1] 在本地 Redis 中写入不同类型的键，使用 RedisTemplate 与 OBJECT ENCODING 查看底层数据结构：");
 
         // 整数字符串 -> int (opsForValue)
+        // Redis 原生指令: SET demo:ds:num 10086
         redisTemplate.opsForValue().set("demo:ds:num", "10086");
+        // Redis 原生指令: OBJECT ENCODING demo:ds:num
         String numEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:num");
         System.out.println("  -> [String 短整数] Key: demo:ds:num -> 底层编码: " + numEnc + " (内存优化型直接存储在 ptr 指针中)");
 
         // 短字符串 -> embstr (SDS) (opsForValue)
+        // Redis 原生指令: SET demo:ds:str hello_redis
         redisTemplate.opsForValue().set("demo:ds:str", "hello_redis");
+        // Redis 原生指令: OBJECT ENCODING demo:ds:str
         String strEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:str");
         System.out.println("  -> [String 短文本] Key: demo:ds:str -> 底层编码: " + strEnc + " (redisObject 与 SDS 内存连续分配)");
 
         // 纯整数集合 -> intset (opsForSet)
+        // Redis 原生指令: DEL demo:ds:set
         redisTemplate.delete("demo:ds:set");
+        // Redis 原生指令: SADD demo:ds:set 10 20 30
         redisTemplate.opsForSet().add("demo:ds:set", "10", "20", "30");
+        // Redis 原生指令: OBJECT ENCODING demo:ds:set
         String setEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:set");
         System.out.println("  -> [Set 整数集合] Key: demo:ds:set -> 底层编码: " + setEnc + " (小整数紧凑数组，二分查找)");
 
         // 小数据量哈希 -> ziplist 或 listpack (opsForHash)
+        // Redis 原生指令: DEL demo:ds:hash
         redisTemplate.delete("demo:ds:hash");
+        // Redis 原生指令: HSET demo:ds:hash name antigravity
         redisTemplate.opsForHash().put("demo:ds:hash", "name", "antigravity");
+        // Redis 原生指令: OBJECT ENCODING demo:ds:hash
         String hashEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:hash");
         System.out.println("  -> [Hash 小数据量] Key: demo:ds:hash -> 底层编码: " + hashEnc + " (连续紧凑内存块)");
 
         // 小数据量有序集合 -> ziplist 或 listpack (opsForZSet)
+        // Redis 原生指令: DEL demo:ds:zset
         redisTemplate.delete("demo:ds:zset");
+        // Redis 原生指令: ZADD demo:ds:zset 99.5 Alice
         redisTemplate.opsForZSet().add("demo:ds:zset", "Alice", 99.5);
+        // Redis 原生指令: OBJECT ENCODING demo:ds:zset
         String zsetEnc = RedisConnectionHelper.getObjectEncoding("demo:ds:zset");
         System.out.println("  -> [ZSet 小数据量] Key: demo:ds:zset -> 底层编码: " + zsetEnc + " (连续内存存储 member 与 score)");
 

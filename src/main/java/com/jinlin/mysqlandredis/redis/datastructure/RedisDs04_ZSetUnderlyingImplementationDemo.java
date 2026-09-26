@@ -42,14 +42,19 @@ public class RedisDs04_ZSetUnderlyingImplementationDemo {
         StringRedisTemplate redisTemplate = RedisConnectionHelper.getStringRedisTemplate();
 
         String zsetKey = "demo:zset:encoding_transition";
+        // Redis 原生指令: DEL demo:zset:encoding_transition
         redisTemplate.delete(zsetKey);
 
         // 1. 插入少量短数据，观察小数据量编码 (ziplist / listpack)
         System.out.println("[步骤 1] 写入 3 个短文本元素，检查初始底层编码：");
+        // Redis 原生指令: ZADD demo:zset:encoding_transition 10.0 item_A
         redisTemplate.opsForZSet().add(zsetKey, "item_A", 10.0);
+        // Redis 原生指令: ZADD demo:zset:encoding_transition 20.0 item_B
         redisTemplate.opsForZSet().add(zsetKey, "item_B", 20.0);
+        // Redis 原生指令: ZADD demo:zset:encoding_transition 30.0 item_C
         redisTemplate.opsForZSet().add(zsetKey, "item_C", 30.0);
 
+        // Redis 原生指令: OBJECT ENCODING demo:zset:encoding_transition
         String initialEncoding = RedisConnectionHelper.getObjectEncoding(zsetKey);
         System.out.println("  -> 当前元素数量: 3, 底层编码为: " + initialEncoding + " (紧凑连续内存存储)");
 
@@ -59,8 +64,10 @@ public class RedisDs04_ZSetUnderlyingImplementationDemo {
         for (int i = 0; i < 5; i++) {
             longMember.append("1234567890");
         }
+        // Redis 原生指令: ZADD demo:zset:encoding_transition 999.0 <longMember>
         redisTemplate.opsForZSet().add(zsetKey, longMember.toString(), 999.0);
 
+        // Redis 原生指令: OBJECT ENCODING demo:zset:encoding_transition
         String upgradedEncoding = RedisConnectionHelper.getObjectEncoding(zsetKey);
         System.out.println("  -> 插入超长 member 后，底层编码跃迁为: " + upgradedEncoding + " (跳表 skiplist + 字典 dict 复合结构)");
 

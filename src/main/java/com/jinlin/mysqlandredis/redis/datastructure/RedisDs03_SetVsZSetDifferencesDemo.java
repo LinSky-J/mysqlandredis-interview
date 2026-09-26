@@ -42,28 +42,40 @@ public class RedisDs03_SetVsZSetDifferencesDemo {
         System.out.println("[步骤 1] 演示 Set 的无序性与集合运算 (如共同好友 SINTER -> opsForSet().intersect)：");
         String user1Follows = "demo:set:user1_follows";
         String user2Follows = "demo:set:user2_follows";
+        // Redis 原生指令: DEL demo:set:user1_follows demo:set:user2_follows
         redisTemplate.delete(Arrays.asList(user1Follows, user2Follows));
 
+        // Redis 原生指令: SADD demo:set:user1_follows Java Redis MySQL Kafka
         redisTemplate.opsForSet().add(user1Follows, "Java", "Redis", "MySQL", "Kafka");
+        // Redis 原生指令: SADD demo:set:user2_follows Redis MySQL Golang Docker
         redisTemplate.opsForSet().add(user2Follows, "Redis", "MySQL", "Golang", "Docker");
 
+        // Redis 原生指令: SINTER demo:set:user1_follows demo:set:user2_follows
         Set<String> commonInter = redisTemplate.opsForSet().intersect(user1Follows, user2Follows);
         System.out.println("  -> [Set 集合运算] 用户 1 与用户 2 共同关注的话题 (交集 SINTER): " + commonInter);
+        // Redis 原生指令: OBJECT ENCODING demo:set:user1_follows
         System.out.println("  -> Set 底层编码 (纯字符串): " + RedisConnectionHelper.getObjectEncoding(user1Follows));
 
         // 2. 实机操作 ZSet: 演示有序性与基于 Score 的精准范围过滤 (opsForZSet)
         System.out.println("\n[步骤 2] 演示 ZSet 的严格有序性与范围查找 (按分数过滤 ZRANGEBYSCORE -> opsForZSet().rangeByScore)：");
         String goodsPriceKey = "demo:zset:goods_price";
+        // Redis 原生指令: DEL demo:zset:goods_price
         redisTemplate.delete(goodsPriceKey);
 
+        // Redis 原生指令: ZADD demo:zset:goods_price 19.9 Notebook
         redisTemplate.opsForZSet().add(goodsPriceKey, "Notebook", 19.9);
+        // Redis 原生指令: ZADD demo:zset:goods_price 99.0 Keyboard
         redisTemplate.opsForZSet().add(goodsPriceKey, "Keyboard", 99.0);
+        // Redis 原生指令: ZADD demo:zset:goods_price 299.0 Earphone
         redisTemplate.opsForZSet().add(goodsPriceKey, "Earphone", 299.0);
+        // Redis 原生指令: ZADD demo:zset:goods_price 1999.0 Monitor
         redisTemplate.opsForZSet().add(goodsPriceKey, "Monitor", 1999.0);
 
         // 过滤价格在 50 到 300 之间的商品
+        // Redis 原生指令: ZRANGEBYSCORE demo:zset:goods_price 50.0 300.0
         Set<String> midPriceGoods = redisTemplate.opsForZSet().rangeByScore(goodsPriceKey, 50.0, 300.0);
         System.out.println("  -> [ZSet 范围过滤] 价格在 50~300 元之间的商品: " + midPriceGoods);
+        // Redis 原生指令: OBJECT ENCODING demo:zset:goods_price
         System.out.println("  -> ZSet 底层编码: " + RedisConnectionHelper.getObjectEncoding(goodsPriceKey));
 
         // 3. 对比总结矩阵
