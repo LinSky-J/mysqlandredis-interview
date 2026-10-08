@@ -53,7 +53,7 @@ mybatis:
   # 指定 MyBatis 的 Mapper 映射文件路径
   mapper-locations: classpath:mappers/*xml
   # 指定 MyBatis 的实体目录（起别名）
-  type-aliases-package: com.jinlin.mysqlandredis.mybatis.entity,com.jinlin.mysqlandredis.entity
+  type-aliases-package: com.jinlin.mysqlandredis.entity
   configuration:
     # 开启下划线转驼峰
     map-underscore-to-camel-case: true

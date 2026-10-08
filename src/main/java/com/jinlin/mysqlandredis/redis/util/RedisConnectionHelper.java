@@ -95,13 +95,22 @@ public class RedisConnectionHelper {
             if (!password.isEmpty()) {
                 uriBuilder.withPassword(password.toCharArray());
             }
-            redisClient = RedisClient.create(uriBuilder.build());
-            connection = redisClient.connect();
-            syncCommands = connection.sync();
-
-            System.out.println(">> [RedisConnectionHelper] 成功初始化 RedisTemplate 与 LettuceConnectionFactory (host=" + host + ", port=" + port + ", db=" + database + ")");
+            RedisClient tempClient = null;
+            StatefulRedisConnection<String, String> tempConn = null;
+            RedisCommands<String, String> tempSync = null;
+            try {
+                tempClient = RedisClient.create(uriBuilder.build());
+                tempConn = tempClient.connect();
+                tempSync = tempConn.sync();
+                System.out.println(">> [RedisConnectionHelper] 成功初始化 RedisTemplate 与 LettuceConnectionFactory (host=" + host + ", port=" + port + ", db=" + database + ")");
+            } catch (Exception ex) {
+                System.err.println(">> [RedisConnectionHelper] 警告: 未能直连本地 Redis (" + host + ":" + port + "): " + ex.getMessage());
+            }
+            redisClient = tempClient;
+            connection = tempConn;
+            syncCommands = tempSync;
         } catch (Exception e) {
-            System.err.println(">> [RedisConnectionHelper] 初始化 Redis 连接失败: " + e.getMessage());
+            System.err.println(">> [RedisConnectionHelper] 解析配置或初始化工厂失败: " + e.getMessage());
             throw new ExceptionInInitializerError(e);
         }
     }
