@@ -38,3 +38,5 @@ out/
 *.log
 logs/
 .DS_Store
+*.rdb
+
